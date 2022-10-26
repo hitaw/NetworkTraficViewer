@@ -28,15 +28,17 @@ class Interface(Tk):
 		menu_file = Menu(menu_bar, tearoff = 0)
 		menu_file.add_command(label = "Open", command = self.open_file, accelerator = "CTRL+O")
 		menu_file.add_command(label = "Analyze", command = self.analyze_file, accelerator = "CTRL+A")
-		menu_file.add_command(label ="Close", command = self.close_file, accelerator = "CTRL+C")
+		menu_file.add_command(label ="Close", command = self.close_file, accelerator = "CTRL+F")
 		menu_file.add_separator()
 		menu_file.add_command(label = "Help", command=self.help, accelerator = "CTRL+H")
+		menu_file.add_command(label = "Quit", command=self.quit, accelerator = "CTRL+C")
 		menu_bar.add_cascade(label="Menu", font = ("Arial",15), menu=menu_file)
 
 		self.bind_all("<Control-o>", lambda x: self.open_file())
 		self.bind_all("<Control-a>", lambda x: self.analyze_file())
-		self.bind_all("<Control-c>", lambda x: self.close_file())
+		self.bind_all("<Control-f>", lambda x: self.close_file())
 		self.bind_all("<Control-h>", lambda x: self.help())
+		self.bind_all("<Control-c>", lambda x: self.quit())
 
 		self.config(menu=menu_bar)
 
@@ -47,13 +49,14 @@ class Interface(Tk):
 		global label
 
 		if (content != None and analyzed == False):
-			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment réouvrir un autre fichier ?")
+			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
 			if answer == False:
 				return
 
 		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
 		if (file_name == None):
+			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")			
 			return
 
 		file = open(file_name, "r")
@@ -86,8 +89,14 @@ class Interface(Tk):
 
 	def analyze_file(self):
 		global content
+		global analyzed
+
 		if (content == None):
 			messagebox.showerror("Erreur", "Aucun fichier n'a été ouvert")
+			return
+			
+		#analyze(content)
+		analyzed = True
 
 			
 
