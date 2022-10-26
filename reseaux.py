@@ -51,7 +51,7 @@ class Interface(Tk):
 			if answer == False:
 				return
 
-		file_name = askopenfilename(title="Choose the file to open", filetypes=[("txt files", ".txt")])
+		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
 		if (file_name == None):
 			return
