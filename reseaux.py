@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from tkinter import ttk
+from analyze import *
 
 content = None
 analyzed = False
@@ -55,8 +56,7 @@ class Interface(Tk):
 
 		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
-		if (file_name == None):
-			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")			
+		if (type(file_name) is tuple):		
 			return
 
 		file = open(file_name, "r")
@@ -95,10 +95,19 @@ class Interface(Tk):
 			messagebox.showerror("Erreur", "Aucun fichier n'a été ouvert")
 			return
 			
-		#analyze(content)
+		if (analyzed == True):
+			messagebox.showerror("Erreur", "Le fichier a déjà été analysé")
+			return
+
+		content = analyze(content)
+		self.print_analyzed_file()
 		analyzed = True
 
-			
+	def print_analyzed_file(self):
+		global content
+		global label
+		label.configure(text = content)
+		return
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
