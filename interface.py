@@ -1,8 +1,5 @@
 #Projet Réseaux
 from tkinter import *
-from tkinter import Menu
-from tkinter import filedialog
-from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from tkinter import ttk
 from analyze import *
@@ -10,17 +7,16 @@ from analyze import *
 content = None
 analyzed = False
 label = None
+canva = None
 
 class Interface(Tk):
 
 	def __init__(self):
 		Tk.__init__(self)
-		global label
-		label = Label(self, text = "Aucun fichier n'est ouvert", font = ("Arial", 15), justify = "left", width = 1900, wraplength = 1900)
-		label.pack()
 		self.create_menu_bar()
 		self.geometry("1920x1080")
 		self.title("Network traffic viewer")
+		self.create_canva()
 
 
 	def create_menu_bar(self):
@@ -42,6 +38,25 @@ class Interface(Tk):
 		self.bind_all("<Control-c>", lambda x: self.quit())
 
 		self.config(menu=menu_bar)
+
+	def create_canva(self):
+		global label
+		global canva
+
+		canva = Canvas(self,  scrollregion =(0, 0, 2000, 1100), width=1905, height=960, bg='ivory')
+		canva.grid(row = 0, column = 0)
+
+		xscroll = ttk.Scrollbar(self, orient = HORIZONTAL)
+		yscroll = ttk.Scrollbar(self, orient = VERTICAL)
+		xscroll.grid(row=1, column=0, sticky=E+W)
+		yscroll.grid(row=0, column=1,  sticky=S+N)
+
+		xscroll["command"]=canva.xview
+		yscroll["command"]=canva.yview
+		canva['xscrollcommand']=xscroll.set
+		canva['yscrollcommand']=yscroll.set
+
+		label = canva.create_text(950, 10, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert")
 
 	def open_file(self):
 
@@ -67,14 +82,14 @@ class Interface(Tk):
 
 		content = file.read()
 		file.close()
-
-		label.configure(text = content)
+		canva.itemconfig(label, text = content)
 
 
 	def close_file(self):
 		global content
 		global analyzed
 		global label
+		global canva
 
 		if (content != None and analyzed == False):
 			answer = messagebox.askyesno("Fermeture","Un fichier a été ouvert mais n'est pas analysé, voulez-vous vraiment fermé le fichier ?")
@@ -83,7 +98,7 @@ class Interface(Tk):
 
 		content = None
 		analyzed = False
-		label.configure(text =  "Aucun fichier n'est ouvert")
+		canva.itemconfig(label, text = "Aucun fichier n'est ouvert")
 
 
 
@@ -106,7 +121,8 @@ class Interface(Tk):
 	def print_analyzed_file(self):
 		global content
 		global label
-		label.configure(text = content)
+		global canva
+		canva.itemconfig(label, text = content)
 		return
 
 	def help(self):
