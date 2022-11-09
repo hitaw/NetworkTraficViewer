@@ -2,12 +2,14 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter import ttk
+from tkinter import messagebox
 from analyze import *
 
 content = None
 analyzed = False
 label = None
 canva = None
+lines = 0
 
 class Interface(Tk):
 
@@ -43,9 +45,15 @@ class Interface(Tk):
 		global label
 		global canva
 
-		canva = Canvas(self,  scrollregion =(0, 0, 2000, 1100), width=1905, height=960, bg='ivory')
+		canva = Canvas(self, width=1980, height=1080, bg='lightgrey')
 		canva.grid(row = 0, column = 0)
+		label = canva.create_text(952.5, 480, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert", anchor ="center", justify = "center")
+		
+	def create_scrollbar(self):
+		global canva
 
+		sheight = lines * 24.5
+		canva.config(scrollregion = (0,0, 1980, sheight), width = 1905, height = 960)
 		xscroll = ttk.Scrollbar(self, orient = HORIZONTAL)
 		yscroll = ttk.Scrollbar(self, orient = VERTICAL)
 		xscroll.grid(row=1, column=0, sticky=E+W)
@@ -56,13 +64,12 @@ class Interface(Tk):
 		canva['xscrollcommand']=xscroll.set
 		canva['yscrollcommand']=yscroll.set
 
-		label = canva.create_text(950, 10, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert")
-
 	def open_file(self):
 
 		global content
 		global analyzed
 		global label
+		global lines
 
 		if (content != None and analyzed == False):
 			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
@@ -80,9 +87,17 @@ class Interface(Tk):
 			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")
 			return
 
+		for line in file:
+			lines += 1
+		print(lines)
+
+		file.seek(0)
 		content = file.read()
 		file.close()
-		canva.itemconfig(label, text = content)
+
+		canva.itemconfig(label, text = content, justify ="left")
+		canva.moveto(label, 10, 10)
+		self.create_scrollbar()
 
 
 	def close_file(self):
@@ -90,6 +105,7 @@ class Interface(Tk):
 		global analyzed
 		global label
 		global canva
+		global lines
 
 		if (content != None and analyzed == False):
 			answer = messagebox.askyesno("Fermeture","Un fichier a été ouvert mais n'est pas analysé, voulez-vous vraiment fermé le fichier ?")
@@ -98,6 +114,7 @@ class Interface(Tk):
 
 		content = None
 		analyzed = False
+		lines = 0
 		canva.itemconfig(label, text = "Aucun fichier n'est ouvert")
 
 
