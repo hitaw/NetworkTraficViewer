@@ -111,6 +111,3 @@ class Interface(Tk):
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
-
-window = Interface()
-window.mainloop()
