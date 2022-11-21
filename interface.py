@@ -131,7 +131,7 @@ class Interface(Tk):
 			messagebox.showerror("Erreur", "Le fichier a déjà été analysé")
 			return
 
-		content = analyze(content)
+		content = analyze_trames(content)
 		self.print_analyzed_file()
 		analyzed = True
 
