@@ -1,34 +1,86 @@
 global trames
 
-"""class Trame:
+class Trame:
 
 	i = 0
 
 	def __init__(self, content):
 		self.num = i
 		i = i+1
-		self.content = content"""
+		self.content = content
+
+		self.ethernet : bool
+		self.ipv4 : bool
+		self.tcp : bool
+		self.http : bool
+
+		#ethernet
+		self.dest_mac : str
+		self.src_mac : str
+		self.type : int
+
+		#ip
+		self.ip_v : int
+		self.header_length : int
+		self.ToS : int
+		self.total_length : int
+		self.identifier : int
+		self.ip_flags : int
+		self.fragment_offset : int
+		self.time_to_live : int
+		self.protocol : str
+		self.header_checksum : int
+		self.src_ip : str
+		self.dest_ip : str
+
+		#tcp
+		self.src_port : int
+		self.dest_port : int
+		self.sequence_number : int
+		self.ack : int
+		self.thl : int
+		self.reserved : int
+		self.tcp_flags : int
+		self.window : int
+		self.checksum : int
+		self.options_padding : int
+
+		#http
+		self.method : str
+		self.request_answer : bool
+		self.url : int
+		self.statut : int
+		self.version : int
+		self.champs : dict
+		self.data : str
+
+
 
 
 def analyze_trames(content):
+	global lines
 	global trames
+
 	trames = content.replace(" ","") #on retire les espaces
 	trames = trames.splitlines() #on sépare les lignes
 	t = trames
 	new = []
+	lines = 0
 	while t != []:
 		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
 		new.append(res)
 	for i in range(len(new)):
-		analyze_trame(new[i]) 
-	return t
+		analyze_trame(new[i])
+	print(new)
+	return "Analysé !"
 
 def new_trame(t):
+	global lines
+
 	res = []
-	lines = 0
 	if t[0][:4] == "0000": #on vérifie si le début de la nouvelle trame commence bien par l'offset "0000"
 		res.append(t[0].lower()) #si oui, on ajoute la ligne à la nouvelle trame
-		lines = 1
+		lines += 1
 		t = t[1:] #on retire la première ligne pour gérer les autres
 	else:
 		return None

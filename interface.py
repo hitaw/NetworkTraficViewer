@@ -1,4 +1,3 @@
-#Projet Réseaux
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter import ttk
@@ -64,6 +63,12 @@ class Interface(Tk):
 		canva['xscrollcommand']=xscroll.set
 		canva['yscrollcommand']=yscroll.set
 
+	def modify_scrollbar(self):
+		global canva
+
+		sheight = lines * 24.5
+		canva.config(scrollregion = (0,0, 1980, sheight), width = 1905, height = 960)
+
 	def open_file(self):
 
 		global content
@@ -71,19 +76,19 @@ class Interface(Tk):
 		global label
 		global lines
 
-		if (content != None and analyzed == False):
+		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
 			if answer == False:
 				return
 
 		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
-		if (type(file_name) is tuple):		
+		if type(file_name) is tuple:		
 			return
 
 		file = open(file_name, "r")
 
-		if (file == None):
+		if file is None:
 			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")
 			return
 
@@ -107,7 +112,7 @@ class Interface(Tk):
 		global canva
 		global lines
 
-		if (content != None and analyzed == False):
+		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Fermeture","Un fichier a été ouvert mais n'est pas analysé, voulez-vous vraiment fermé le fichier ?")
 			if answer == False:
 				return
@@ -118,16 +123,15 @@ class Interface(Tk):
 		canva.itemconfig(label, text = "Aucun fichier n'est ouvert")
 
 
-
 	def analyze_file(self):
 		global content
 		global analyzed
 
-		if (content == None):
+		if content is None:
 			messagebox.showerror("Erreur", "Aucun fichier n'a été ouvert")
 			return
 			
-		if (analyzed == True):
+		if analyzed == True:
 			messagebox.showerror("Erreur", "Le fichier a déjà été analysé")
 			return
 
@@ -139,6 +143,7 @@ class Interface(Tk):
 		global content
 		global label
 		global canva
+		self.modify_scrollbar()
 		canva.itemconfig(label, text = content)
 		return
 
