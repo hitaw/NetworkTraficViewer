@@ -2,11 +2,7 @@ global trames
 
 class Trame:
 
-	i = 0
-
 	def __init__(self, content):
-		self.num = i
-		i = i+1
 		self.content = content
 
 		self.ethernet : bool
@@ -54,6 +50,8 @@ class Trame:
 		self.champs : dict
 		self.data : str
 
+	def __repr__(self):
+		return self.content
 
 
 
@@ -91,16 +89,21 @@ def new_trame(t):
 			t = t[1:] #on retire la première ligne pour gérer les autres
 		else:
 			suiv = False
+
+	for i in range(len(res)):
+		res[i] = res[i][4:]
 	res = verify_trame(res) #on vérifie que la trame créée est valide
+	res = "".join(res)
+	res = Trame(res)
 	return (res,t)
 
 def verify_trame(trame):
 	for i in range(0,len(trame)):
-		if i != len(trame)-1: #si ce n'est pas la dernière ligne de la trame, on vérifie que sa longueur est égale à 36 (4 pour l'offset et 32 pour le nombre d'octets)
-			if len(trame[i]) != 36:
+		if i != len(trame)-1: #si ce n'est pas la dernière ligne de la trame, on vérifie que sa longueur est égale à 32
+			if len(trame[i]) != 32:
 				return None
 		else:
-			if len(trame[i]) > 36: #si c'est la dernière ligne, on vérifie qu'elle est plus petite que 36
+			if len(trame[i]) > 32: #si c'est la dernière ligne, on vérifie qu'elle est plus petite que 32
 				return None
 		for j in trame[i]:
 			if (j < "0" or j > "9") and (j < "a" or j > "z"): #on vérifie que tous les caractères de la ligne soient des caractères hexadécimaux
@@ -110,4 +113,5 @@ def verify_trame(trame):
 def analyze_trame(trame):
 	#est-ce que je crée le fichier ici ou dans analyze_trames ?
 	#dans analyze_trames ça nous ferait ouvrir le fichier qu'une seule fois mais ce serait peut-être moins pratique
+	#if trame[16::18] == "0800":
 	return
