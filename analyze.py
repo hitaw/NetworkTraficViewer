@@ -10,6 +10,8 @@ class Trame:
 		self.tcp : bool
 		self.http : bool
 
+		self.non_etud = content
+
 		#ethernet
 		self.dest_mac = ""
 		self.src_mac = ""
@@ -61,48 +63,50 @@ class Trame:
 			self.analyze_ethernet()
 			if self.is_ipv4():
 				if self.is_tcp():
-					return
+					if self.is_http():
+						return
 				else:
-					self.mess_not = "Ceci n'est pas une trame TCP"
+					self.mess_not = "Ceci n'est pas une trame TCP\n"
 			else:
-				self.mess_not = "Ceci n'est pas une trame IPv4"
+				self.mess_not = "Ceci n'est pas une trame IPv4\n"
 		else:
 			self.mess_not = "Ceci n'est pas une trame Ethernet II\n" + self.mess_not
 
 
 	def is_ethernet(self):
-		if  len(self.content) < 128:
+		if  len(self.non_etud) < 128:
 			self.mess_not = "Trame trop courte (moins de 64 octets)"
-		elif len(self.content) > 3028:
+		elif len(self.non_etud) > 3028:
 			self.mess_not = "Trame trop longue (plus de 1512 octets)"
-		elif int(self.content[24:28],16) > 1500:
+		elif int(self.non_etud[24:28],16) > 1500:
 			self.ethernet = True
 		else:
 			self.ethernet = False
 		return self.ethernet
 
 	def analyze_ethernet(self):
-		dest_mac = self.content[:12]
-		src_mac = self.content[12:24]
-		self.type = self.content[24:28]
+		dest_mac = self.non_etud[:12]
+		src_mac = self.non_etud[12:24]
+		self.type = self.non_etud[24:28]
+		
 		i = 0
-		j = 2
 		while i < 12:
-			self.dest_mac += str(int(dest_mac[i:j],16))+":"
-			self.src_mac += str(int(src_mac[i:j],16))+":"
+			self.dest_mac += dest_mac[i:i+2]+":"
+			self.src_mac += src_mac[i:i+2]+":"
 			i += 2
-			j += 2
+
 		self.dest_mac = self.dest_mac[:-1]
 		self.src_mac = self.src_mac[:-1]
+		self.non_etud = self.non_etud[28:]
 
 	def is_ipv4(self):
-		if self.content[24:28] == "0800" :
+		if self.type == "0800" :
 			self.ipv4 = True
 		else:
 			self.ipv4 = False
-			if self.content[24:28] == "0806":
+			if self.type == "0806":
 				self.mess_is = "Trame ARP"
-			elif self.content[24:28] == "0x86dd":
+			elif self.type == "0x86dd":
 				self.mess_is = "Trame IPv6"
 			else:
 				self.mess_is = "Type inconnu"
@@ -126,6 +130,9 @@ class Trame:
 		
 		return self.tcp
 
+	def is_http(self):
+		#jsp comment on reconnaît une trame http mdrr
+		return True
 
 
 def analyze_trames(content):
