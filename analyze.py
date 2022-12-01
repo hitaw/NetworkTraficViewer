@@ -50,9 +50,45 @@ class Trame:
 		self.champs : dict
 		self.data : str
 
+		self.mess_not = ""
+		self.mess_is = ""
+
 	def __repr__(self):
 		return self.content
 
+	def analyze_trame(self):
+		if self.is_ethernet():
+			if self.is_ipv4():
+				if self.is_tcp():
+
+				else:
+					self.mess_not = "Ceci n'est pas une trame TCP"
+			else:
+				self.mess_not = "Ceci n'est pas une trame IPv4"
+		else:
+			self.mess_not = "Ceci n'est pas une trame Ethernet II"
+
+
+	def is_ethernet(self):
+		if int(self.content[16::18],16) > 1500 :
+			self.ethernet = True
+		else:
+			self.ethernet = False
+		return self.ethernet
+
+	def is_ipv4(self):
+		if self.content[16::18] = "0800" :
+			self.ipv4 = True
+		else:
+			self.ipv4 = False
+			if self.content[16::18] = "0806":
+				self.mess_is = "Trame ARP"
+			elif self.content[16::16] = "0x86dd":
+				self.mess_is = "Trame IPv6"
+			else:
+				self.mess_is = "Type inconnu"
+
+		return self.ipv4
 
 
 def analyze_trames(content):
@@ -109,9 +145,3 @@ def verify_trame(trame):
 			if (j < "0" or j > "9") and (j < "a" or j > "z"): #on vérifie que tous les caractères de la ligne soient des caractères hexadécimaux
 				return None
 	return trame
-
-def analyze_trame(trame):
-	#est-ce que je crée le fichier ici ou dans analyze_trames ?
-	#dans analyze_trames ça nous ferait ouvrir le fichier qu'une seule fois mais ce serait peut-être moins pratique
-	#if trame[16::18] == "0800":
-	return
