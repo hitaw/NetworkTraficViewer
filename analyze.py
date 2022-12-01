@@ -58,6 +58,7 @@ class Trame:
 
 	def analyze_trame(self):
 		if self.is_ethernet():
+			self.analyze_ethernet()
 			if self.is_ipv4():
 				if self.is_tcp():
 
@@ -70,25 +71,32 @@ class Trame:
 
 
 	def is_ethernet(self):
-		if int(self.content[16::18],16) > 1500 :
+		if int(self.content[24:28],16) > 1500 and len(self.content)>:
 			self.ethernet = True
 		else:
 			self.ethernet = False
 		return self.ethernet
 
+	def analyze_ethernet(self):
+		dest_mac = self.content[:8]
+
 	def is_ipv4(self):
-		if self.content[16::18] = "0800" :
+		if self.content[24:28] = "0800" :
 			self.ipv4 = True
 		else:
 			self.ipv4 = False
-			if self.content[16::18] = "0806":
+			if self.content[24:28] = "0806":
 				self.mess_is = "Trame ARP"
-			elif self.content[16::16] = "0x86dd":
+			elif self.content[24:28] = "0x86dd":
 				self.mess_is = "Trame IPv6"
 			else:
 				self.mess_is = "Type inconnu"
 
 		return self.ipv4
+
+	def is_tcp(self):
+		return
+
 
 
 def analyze_trames(content):
@@ -104,7 +112,7 @@ def analyze_trames(content):
 		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
 		new.append(res)
 	for i in range(len(new)):
-		analyze_trame(new[i])
+		new[i].analyze_trame()
 	print(new)
 	return "Analysé !"
 
