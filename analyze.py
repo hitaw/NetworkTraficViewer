@@ -11,8 +11,8 @@ class Trame:
 		self.http : bool
 
 		#ethernet
-		self.dest_mac : str
-		self.src_mac : str
+		self.dest_mac = ""
+		self.src_mac = ""
 		self.type : int
 
 		#ip
@@ -61,33 +61,48 @@ class Trame:
 			self.analyze_ethernet()
 			if self.is_ipv4():
 				if self.is_tcp():
-
+					return
 				else:
 					self.mess_not = "Ceci n'est pas une trame TCP"
 			else:
 				self.mess_not = "Ceci n'est pas une trame IPv4"
 		else:
-			self.mess_not = "Ceci n'est pas une trame Ethernet II"
+			self.mess_not = "Ceci n'est pas une trame Ethernet II\n" + self.mess_not
 
 
 	def is_ethernet(self):
-		if int(self.content[24:28],16) > 1500 and len(self.content)>:
+		if  len(self.content) < 128:
+			self.mess_not = "Trame trop courte (moins de 64 octets)"
+		elif len(self.content) > 3028:
+			self.mess_not = "Trame trop longue (plus de 1512 octets)"
+		elif int(self.content[24:28],16) > 1500:
 			self.ethernet = True
 		else:
 			self.ethernet = False
 		return self.ethernet
 
 	def analyze_ethernet(self):
-		dest_mac = self.content[:8]
+		dest_mac = self.content[:12]
+		src_mac = self.content[12:24]
+		self.type = self.content[24:28]
+		i = 0
+		j = 2
+		while i < 12:
+			self.dest_mac += str(int(dest_mac[i:j],16))+":"
+			self.src_mac += str(int(src_mac[i:j],16))+":"
+			i += 2
+			j += 2
+		self.dest_mac = self.dest_mac[:-1]
+		self.src_mac = self.src_mac[:-1]
 
 	def is_ipv4(self):
-		if self.content[24:28] = "0800" :
+		if self.content[24:28] == "0800" :
 			self.ipv4 = True
 		else:
 			self.ipv4 = False
-			if self.content[24:28] = "0806":
+			if self.content[24:28] == "0806":
 				self.mess_is = "Trame ARP"
-			elif self.content[24:28] = "0x86dd":
+			elif self.content[24:28] == "0x86dd":
 				self.mess_is = "Trame IPv6"
 			else:
 				self.mess_is = "Type inconnu"
@@ -95,7 +110,21 @@ class Trame:
 		return self.ipv4
 
 	def is_tcp(self):
-		return
+		if self.protocol == "06":
+			self.tcp = True
+		else:
+			self.tcp = False
+
+			if self.protocol == "01":
+				self.mess_is = "Protocole ICMP"
+			
+			elif self.protocol == "02":
+				self.mess_is = "Protocole IGMP"
+
+			elif self.protocol == "11":
+				self.mess_is = "Protocole UDP"
+		
+		return self.tcp
 
 
 
