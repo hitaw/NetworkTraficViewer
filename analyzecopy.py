@@ -39,6 +39,7 @@ class Trame:
 		self.tcp_flags : int
 		self.window : int
 		self.checksum : int
+		self.urgentPointer
 		self.options_padding : int
 
 		#http
@@ -156,6 +157,31 @@ class Trame:
 		
 		return self.tcp
 
+	def analyze_tcp(self):
+		self.src_port = int(self.non_etud[:4],16)
+		self.dest_port = int(self.non_etud[4:8],16)
+		self.sequence_number = int(self.non_etud[8:16],16)
+		self.ack = int(self.non_etud[16:24],16)
+		self.thl = int(self.non_etud[24:25],16)
+		temp = bin(int(self.non_etud[25:27],16))
+		self.reserved = temp[2:8]
+		self tcp_flags = temp[8:]
+		if self.tcp_flags[0] != "0":
+			print("URG")
+		if self.tcp_flags[1] != "0"
+			print("ACK")
+		if self.tcp_flags[2] != "0":
+			print("PSH")
+		if self.tcp_flags[3] !="0":
+			print("RST")
+		if self.tcp_flags[4] !="0":
+			print("SYN")
+		if self.tcp_flags[5] !="0":
+			print("FIN")
+
+		self.window = int(self.non_etud[27:31],16)
+		self.checksum = int(self.non_etud[31:35],16)
+		self.urgentPointer = int(self.non_etud[35:39],16)
 
 
 def analyze_trames(content):
