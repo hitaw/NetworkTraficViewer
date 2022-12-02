@@ -134,24 +134,7 @@ class Trame:
 			i += 4
 
 		options_size = self.header_length*4 - 20
-		i = 41
-		j = int(self.non_etud[i:i+2])
-		pointeur = 0x00
-		if options_size != 0 :
-			while j != 0x00:
-				if j == 0x01 :
-					print("l'option est NOP et aligne l'opération suivante sur 32 bits")
-					i+= 32
-					options_size = options_size - 34
-				if j == 0x83 :
-					print("l'option est Loose Routing")
-					LSRR_size = LSRR_size + int(self.non_etud[i:i+2],16)
-					cptr = options_size - LSRR_size
-					while cptr < options_size : #on doit refaire un while car taille variable pour cette option
-
-				i+=1
-				
-		
+		i = 41 + options_size
 		self.non_etud = self.non_etud[i:]
 
 
