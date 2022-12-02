@@ -186,7 +186,7 @@ class Trame:
 
 def analyze_trames(content):
 	global lines
-	global trames
+	global trames #yo
 
 	trames = content.replace(" ","") #on retire les espaces
 	trames = trames.splitlines() #on sépare les lignes
