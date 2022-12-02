@@ -128,13 +128,31 @@ class Trame:
 		src_ip = self.non_etud[25:33]
 		dest_ip = self.non_etud[33:41]
 		i = 0
-		while i < 12:
+		while i < 8:
 			self.dest_ip += str(int(dest_ip[i:i+4],16))+":"
 			self.src_ip += str(int(src_ip[i:i+4],16))+":"
-			i += 2
-			
+			i += 4
+
 		options_size = self.header_length*4 - 20
-		self.non_etud = self.non_etud[41:]
+		i = 41
+		j = int(self.non_etud[i:i+2])
+		pointeur = 0x00
+		if options_size != 0 :
+			while j != 0x00:
+				if j == 0x01 :
+					print("l'option est NOP et aligne l'opération suivante sur 32 bits")
+					i+= 32
+					options_size = options_size - 34
+				if j == 0x83 :
+					print("l'option est Loose Routing")
+					LSRR_size = LSRR_size + int(self.non_etud[i:i+2],16)
+					cptr = options_size - LSRR_size
+					while cptr < options_size : #on doit refaire un while car taille variable pour cette option
+
+				i+=1
+				
+		
+		self.non_etud = self.non_etud[i:]
 
 
 
