@@ -54,6 +54,7 @@ class Trame:
 
 		self.mess_not = ""
 		self.mess_is = ""
+		self.mess_error = ""
 
 	def __repr__(self):
 		return self.content
@@ -88,13 +89,12 @@ class Trame:
 		dest_mac = self.non_etud[:12]
 		src_mac = self.non_etud[12:24]
 		self.type = self.non_etud[24:28]
-		
 		i = 0
 		while i < 12:
 			self.dest_mac += dest_mac[i:i+2]+":"
 			self.src_mac += src_mac[i:i+2]+":"
 			i += 2
-
+			
 		self.dest_mac = self.dest_mac[:-1]
 		self.src_mac = self.src_mac[:-1]
 		self.non_etud = self.non_etud[28:]
@@ -112,6 +112,43 @@ class Trame:
 				self.mess_is = "Type inconnu"
 
 		return self.ipv4
+
+	def analyze_ipv4(self):
+		self.ip_v = int(self.non_etud[0],16)
+
+		if self.ip_v == 4:
+			self.header_length = int(self.non_etud[1],16)
+			self.ToS =  int(self.non_etud[2:4],16)
+			self.total_length = int(self.non_etud[4:8],16)
+			self.identifier = int(self.non_etud[8:12],16)
+
+			temp = bin(int(self.non_etud[13],16))
+			self.ip_flags = temp[2:5]
+			self.fragment_offset = temp[6] + self.non_etud[14:17]
+
+			self.time_to_live = int(self.non_etud[17:19],16)
+			self.protocol = self.non_etud[19:21]
+			self.header_checksum = self.non_etud[21:25]
+
+			src_ip = self.non_etud[25:33]
+			dest_ip = self.non_etud[33:41]
+
+			i = 0
+			while i < 8:
+				self.dest_ip += str(int(dest_ip[i:i+2],16))+"."
+				self.src_ip += str(int(src_ip[i:i+2],16))+"."
+				i += 2
+
+			self.dest_ip = self.dest_ip[:-1]
+			self.src_ip = self.src_ip[:-1]
+
+			options_size = self.header_length*4 - 20
+			i = 41 + options_size
+
+			self.non_etud = self.non_etud[i:]
+
+		else:
+			self.mess_error = 'Mauvaise valeur : ip_version != 4'
 
 	def is_tcp(self):
 		if self.protocol == "06":
