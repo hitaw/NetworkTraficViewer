@@ -183,12 +183,13 @@ class Trame:
 
 		temp = bin(int(self.non_etud[25:28],16))
 		temp_size = len(temp)
-		if temp_size < 12 :
-			while temp_size <= 12:
+		if temp_size < 14 :
+			while temp_size < 14:
 				temp += "0"
 				temp_size +=1
 		self.reserved = temp[2:8]
 		self tcp_flags = temp[8:]
+
 		if self.tcp_flags[0] != "0":
 			print("URG")
 		if self.tcp_flags[1] != "0"
