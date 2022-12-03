@@ -180,7 +180,13 @@ class Trame:
 		self.sequence_number = int(self.non_etud[8:16],16)
 		self.ack = int(self.non_etud[16:24],16)
 		self.thl = int(self.non_etud[24:25],16)
-		temp = bin(int(self.non_etud[25:27],16))
+
+		temp = bin(int(self.non_etud[25:28],16))
+		temp_size = len(temp)
+		if temp_size < 12 :
+			while temp_size <= 12:
+				temp += "0"
+				temp_size +=1
 		self.reserved = temp[2:8]
 		self tcp_flags = temp[8:]
 		if self.tcp_flags[0] != "0":
