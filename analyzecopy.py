@@ -121,8 +121,8 @@ class Trame:
 
 			temp = bin(int(self.non_etud[12],16))
 			temp_size = len(temp)
-			if temp_size < 5 :
-				while temp_size <= 5:
+			if temp_size < 6 :
+				while temp_size <= 6:
 					temp += "0"
 					temp_size +=1
 
