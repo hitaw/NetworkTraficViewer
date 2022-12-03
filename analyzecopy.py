@@ -207,6 +207,13 @@ class Trame:
 		self.checksum = int(self.non_etud[31:35],16)
 		self.urgentPointer = int(self.non_etud[35:39],16)
 
+		options_size = self.header_length*4 - 20
+		i = 40 + options_size
+
+		self.options_padding = self.non_etud[40:i]
+
+		self.non_etud = self.non_etud[i:]
+
 
 def analyze_trames(content):
 	global lines
