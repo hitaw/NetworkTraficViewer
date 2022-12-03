@@ -23,13 +23,14 @@ class Trame:
 		self.ToS : int
 		self.total_length : int
 		self.identifier : int
-		self.ip_flags : int
-		self.fragment_offset : int
+		self.ip_flags : str
+		self.fragment_offset : str
 		self.time_to_live : int
 		self.protocol : str
-		self.header_checksum : int
-		self.src_ip : str
-		self.dest_ip : str
+		self.header_checksum : str
+		self.src_ip = ""
+		self.dest_ip = ""
+		self.options_padding_ip : str
 
 		#tcp
 		self.src_port : int
@@ -41,7 +42,7 @@ class Trame:
 		self.tcp_flags : int
 		self.window : int
 		self.checksum : int
-		self.options_padding : int
+		self.options_padding_tcp : int
 
 		#http
 		self.method : str
@@ -62,7 +63,28 @@ class Trame:
 	def analyze_trame(self):
 		if self.is_ethernet():
 			self.analyze_ethernet()
+			print("Analyse Partie Ethernet : \n")
+			print("Adresse mac de destination : " +self.dest_mac)
+			print("Adresse mac source : " +self.src_mac)
+			print("Type : " + str(self.type))
+			print("\n\n")
 			if self.is_ipv4():
+				self.analyze_ipv4()
+				print("Analyse Partie IPv4 : \n")
+				print("Version : " + str(self.ip_v))
+				print("Header Length : " + str(self.header_length))
+				print("ToS : "+ str(self.ToS))
+				print("Total length : " + str(self.total_length))
+				print("Identifier : " + str(self.identifier))
+				print("Ip_Flags : " +self.ip_flags)
+				print("Fragment Offset : " + self.fragment_offset)
+				print("TTL : " + str(self.time_to_live))
+				print("Protocole : " + self.protocol)
+				print("Header Checksum : " + self.header_checksum)
+				print("Ip source : " + self.src_ip)
+				print("Ip dest : " + self.dest_ip)
+				print("\n\n")
+				return
 				if self.is_tcp():
 					if self.is_http():
 						return
@@ -122,16 +144,20 @@ class Trame:
 			self.total_length = int(self.non_etud[4:8],16)
 			self.identifier = int(self.non_etud[8:12],16)
 
-			temp = bin(int(self.non_etud[13],16))
-			self.ip_flags = temp[2:5]
-			self.fragment_offset = temp[6] + self.non_etud[14:17]
+			temp = bin(int(self.non_etud[12],16))
+			if temp == "0b0":
+				self.ip_flags = "000"
+				self.fragment_offset = "0"+self.non_etud[13:16]
+			else:
+				self.ip_flags = "0" + temp[2:4]
+				self.fragment_offset = temp[4] + self.non_etud[13:16]
 
-			self.time_to_live = int(self.non_etud[17:19],16)
-			self.protocol = self.non_etud[19:21]
-			self.header_checksum = self.non_etud[21:25]
+			self.time_to_live = int(self.non_etud[16:18],16)
+			self.protocol = self.non_etud[18:20]
+			self.header_checksum = self.non_etud[20:24]
 
-			src_ip = self.non_etud[25:33]
-			dest_ip = self.non_etud[33:41]
+			src_ip = self.non_etud[24:32]
+			dest_ip = self.non_etud[32:40]
 
 			i = 0
 			while i < 8:
@@ -143,7 +169,9 @@ class Trame:
 			self.src_ip = self.src_ip[:-1]
 
 			options_size = self.header_length*4 - 20
-			i = 41 + options_size
+			i = 40 + options_size
+
+			self.options_padding_ip = self.non_etud[40:i]
 
 			self.non_etud = self.non_etud[i:]
 
@@ -184,8 +212,9 @@ def analyze_trames(content):
 	while t != []:
 		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
 		new.append(res)
-	for i in range(len(new)):
-		new[i].analyze_trame()
+	new[0].analyze_trame()
+	"""for i in range(len(new)):
+					new[i].analyze_trame()"""
 	print(new)
 	return "Analysé !"
 
