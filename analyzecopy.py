@@ -215,8 +215,13 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-
 		def is_http(self):
+			self.http = false
+			if len(self.non_etud) != 0 :
+				self.http = True
+			return self.http
+
+		def analyze_http(self):
 			#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
 			temp = ""
 			i = 0
