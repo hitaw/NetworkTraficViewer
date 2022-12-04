@@ -215,58 +215,56 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-		def is_http(self):
-			self.http = false
-			if len(self.non_etud) != 0 :
-				self.http = True
-			return self.http
+	def is_http(self):
+		self.http = false
+		if len(self.non_etud) != 0 :
+			self.http = True
+		return self.http
 
-		def analyze_http(self):
-			#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
-			temp = ""
-			i = 0
-			while temp != "20"
-				self.method += self.non_etud[i:i+1]
-				temp += self.non_etud[i+1:i+2]
-				i += 1
-			temp =""
-			while temp != "20"
-				self.url += self.non_etud[i:i+1]
-				temp += self.non_etud[i+1:i+2]
-				i += 1
-			temp = ""
+	def analyze_http(self):
+		#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
+		temp = ""
+		i = 0
+		while temp != "20"
+			self.method += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp =""
+		while temp != "20"
+			self.url += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp = ""
+		while temp != "0d0a"
+			self.version += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp = ""
+		enthete = []
+		val = []
+		while (temp != "0d0a" && self.non_etud[i+2:i+3] != "0x0d0a"):
 			while temp != "0d0a"
-				self.version += self.non_etud[i:i+1]
-				temp += self.non_etud[i+1:i+2]
-				i += 1
-			temp = ""
-			enthete = []
-			val = []
-			while (temp != "0d0a" && self.non_etud[i+2:i+3] != "0x0d0a"):
-				while temp != "0d0a"
-					if temp == "20" : 
-						while temp != "0d0a":
-							val.append(self.non_etud[i:i+1])
-							temp = self.non_etud[i+2:i+6]
-						break
-					enthete.append(self.non_etud[i:i+1])
-					temp = self.non_etud[i+2:i+3]
-					i += 2
-			self.non_etud = self.non_etud[i:]
-
-		def interpreter_http(self):
-			temp = ""
-			i=0
-			j = 0
-			res = ""
-			while temp != "0d0a0d0a":
-				while j < len(temp):
-					res += chr(temp[j])
-					j++
-				temp = self.non_etud[i:i+8]
-				i += 8
-			return res
-
+				if temp == "20" : 
+					while temp != "0d0a":
+						val.append(self.non_etud[i:i+1])
+						temp = self.non_etud[i+2:i+6]
+				enthete.append(self.non_etud[i:i+1])
+				temp = self.non_etud[i+2:i+3]
+				i += 2
+		self.non_etud = self.non_etud[i:]
+		
+	def interpreter_http(self):
+		temp = ""
+		i=0
+		j = 0
+		res = ""
+		while temp != "0d0a0d0a":
+			while j < len(temp):
+				res += chr(temp[j])
+				j++
+			temp = self.non_etud[i:i+8]
+			i += 8
+		return res
 
 def analyze_trames(content):
 	global lines

@@ -54,7 +54,6 @@ class Trame:
 		self.champs : dict
 		self.data : str
 
-		self.mess_not = ""
 		self.mess_is = ""
 		self.mess_error = ""
 
@@ -107,18 +106,20 @@ class Trame:
 					if self.is_http():
 						return
 				else:
-					self.mess_not = "Ceci n'est pas une trame TCP\n"
+					self.mess_is = "Ceci n'est pas une trame TCP\n" + self.mess_is
 			else:
-				self.mess_not = "Ceci n'est pas une trame IPv4\n"
+				self.mess_is = "Ceci n'est pas une trame IPv4\n" + self.mess_is
 		else:
-			self.mess_not = "Ceci n'est pas une trame Ethernet II\n" + self.mess_not
+			self.mess_is = "Ceci n'est pas une trame Ethernet II\n" + self.mess_is
 
 
 	def is_ethernet(self):
 		if  len(self.non_etud) < 128:
-			self.mess_not = "Trame trop courte (moins de 64 octets)"
+			self.mess_error = "Trame trop courte (moins de 64 octets)"
+			self.ethernet = False
 		elif len(self.non_etud) > 3028:
-			self.mess_not = "Trame trop longue (plus de 1512 octets)"
+			self.mess_error = "Trame trop longue (plus de 1512 octets)"
+			self.ethernet = False
 		elif int(self.non_etud[24:28],16) > 1500:
 			self.ethernet = True
 		else:
@@ -146,7 +147,7 @@ class Trame:
 			self.ipv4 = False
 			if self.type == "0806":
 				self.mess_is = "Trame ARP"
-			elif self.type == "0x86dd":
+			elif self.type == "86dd":
 				self.mess_is = "Trame IPv6"
 			else:
 				self.mess_is = "Type inconnu"
@@ -247,6 +248,51 @@ class Trame:
 		if len(self.non_etud) != 0 :
 			self.http = True
 		return self.http
+
+	def analyze_http(self):
+		#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
+		temp = ""
+		i = 0
+		while temp != "20"
+			self.method += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp =""
+		while temp != "20"
+			self.url += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp = ""
+		while temp != "0d0a"
+			self.version += self.non_etud[i:i+1]
+			temp += self.non_etud[i+1:i+2]
+			i += 1
+		temp = ""
+		enthete = []
+		val = []
+		while (temp != "0d0a" && self.non_etud[i+2:i+3] != "0x0d0a"):
+			while temp != "0d0a"
+				if temp == "20" : 
+					while temp != "0d0a":
+						val.append(self.non_etud[i:i+1])
+						temp = self.non_etud[i+2:i+6]
+				enthete.append(self.non_etud[i:i+1])
+				temp = self.non_etud[i+2:i+3]
+				i += 2
+		self.non_etud = self.non_etud[i:]
+		
+	def interpreter_http(self):
+		temp = ""
+		i=0
+		j = 0
+		res = ""
+		while temp != "0d0a0d0a":
+			while j < len(temp):
+				res += chr(temp[j])
+				j++
+			temp = self.non_etud[i:i+8]
+			i += 8
+		return res
 
 
 def analyze_trames(content):
