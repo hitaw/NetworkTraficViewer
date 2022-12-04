@@ -61,8 +61,9 @@ class Trame:
 		if self.is_ethernet():
 			self.analyze_ethernet()
 			if self.is_ipv4():
+				self.analyze_ipv4()
 				if self.is_tcp():
-					return
+					self.analyze_tcp()
 				else:
 					self.mess_not = "Ceci n'est pas une trame TCP"
 			else:
@@ -214,6 +215,32 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
+
+		def is_http(self):
+			#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait, je m'y remettrai demain
+			#j'ai commencé un truc bizarre avec les entêtes j'y réfléchirai plus tard
+			temp = ""
+			i = 0
+			while temp != "0x20"
+				self.method += self.non_etud[i:i+1]
+				temp += self.non_etud[i+1:i+2]
+				i += 1
+			while temp != "0x20"
+				self.url += self.non_etud[i:i+1]
+				temp += self.non_etud[i+1:i+2]
+				i += 1
+			while temp != "0x0d0a"
+				self.version += self.non_etud[i:i+1]
+				temp += self.non_etud[i+1:i+2]
+				i += 1
+			enthete = []
+			while temp != "0x20"
+				if temp == "0x20" : 
+					enthete.append " "
+				enthete.append(self.non_etud[i:i+1])
+				temp += self.non_etud[i+1:i+2]
+				i += 1
+		return True
 
 def analyze_trames(content):
 	global lines
