@@ -245,23 +245,16 @@ class Trame:
 		self.non_etud = self.non_etud[i:]
 
 	def is_http(self):
-		self.http = false
-		if len(self.non_etud) == 0 :
-			self.http = False
-		else:
-			i = 0
-			self.method = ""
-			while i < len(self.non_etud - 3) and self.non_etud[i:i+2] != "20":
-				self.method += chr(int(self.non_etud[i:i+2],16))
-				i += 2
-			if i < len(self.non_etud - 3):
-				self.non_etud = self.non_etud[i+2:]
-				if self.method in METHODES_HTTP:
-					self.http = True
-				else:
-					self.http = False
-			else:
-				self.http = False
+		self.http = False		
+		i = 0
+		self.method = ""
+		while i < len(self.non_etud - 3) and self.non_etud[i:i+2] != "20":
+			self.method += chr(int(self.non_etud[i:i+2],16))
+			i += 2
+		if i < len(self.non_etud - 3):
+			self.non_etud = self.non_etud[i+2:]
+			if self.method in METHODES_HTTP:
+				self.http = True
 		return self.http
 
 	def analyze_http(self):
