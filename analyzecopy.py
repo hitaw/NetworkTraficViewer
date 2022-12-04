@@ -252,10 +252,13 @@ class Trame:
 		def interpreter_http(self):
 			temp = ""
 			i=0
+			j = 0
 			res = ""
 			while temp != "0d0a0d0a":
+				while j < len(temp):
+					res += chr(temp[j])
+					j++
 				temp = self.non_etud[i:i+8]
-				res += ascii(temp)
 				i += 8
 			return res
 
