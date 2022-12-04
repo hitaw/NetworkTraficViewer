@@ -42,6 +42,7 @@ class Trame:
 		self.tcp_flags : str
 		self.window : int
 		self.checksum : str
+		self.urgentPointer : int
 		self.options_padding_tcp : str
 
 		#http
@@ -97,8 +98,11 @@ class Trame:
 					print("TCP Flags : " + self.tcp_flags)
 					print("Window : " + str(self.window))
 					print("Checksum : " + str(self.checksum))
+					print("Urgent Pointer : " + str(self.urgentPointer))
 					print("Options + padding : " + self.options_padding_tcp)
 					print("\n\n")
+
+					print(self.non_etud + "\n\n")
 					return
 					if self.is_http():
 						return
@@ -184,7 +188,7 @@ class Trame:
 			self.dest_ip = self.dest_ip[:-1]
 			self.src_ip = self.src_ip[:-1]
 
-			options_size = self.header_length*4 - 20
+			options_size = (self.header_length*4 - 20)*2
 			i = 40 + options_size
 
 			self.options_padding_ip = self.non_etud[40:i]
@@ -216,7 +220,7 @@ class Trame:
 		self.dest_port = int(self.non_etud[4:8],16)
 		self.sequence_number = int(self.non_etud[8:16],16)
 		self.ack = int(self.non_etud[16:24],16)
-		self.thl = int(self.non_etud[24:25],16)
+		self.thl = int(self.non_etud[24:25],16)*4
 
 		temp = bin(int(self.non_etud[25:28],16))[2:]
 		temp_size = len(temp)
@@ -231,7 +235,7 @@ class Trame:
 		self.checksum = self.non_etud[32:36]
 		self.urgentPointer = int(self.non_etud[36:40],16)
 
-		options_size = self.header_length*4 - 20
+		options_size = (self.thl - 20)*2
 		i = 40 + options_size
 
 		self.options_padding_tcp = self.non_etud[40:i]
@@ -239,8 +243,10 @@ class Trame:
 		self.non_etud = self.non_etud[i:]
 
 	def is_http(self):
-		#jsp comment on reconnaît une trame http mdrr
-		return True
+		self.http = false
+		if len(self.non_etud) != 0 :
+			self.http = True
+		return self.http
 
 
 def analyze_trames(content):
