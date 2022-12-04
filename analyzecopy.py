@@ -217,30 +217,48 @@ class Trame:
 
 
 		def is_http(self):
-			#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait, je m'y remettrai demain
-			#j'ai commencé un truc bizarre avec les entêtes j'y réfléchirai plus tard
+			#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
 			temp = ""
 			i = 0
-			while temp != "0x20"
+			while temp != "20"
 				self.method += self.non_etud[i:i+1]
 				temp += self.non_etud[i+1:i+2]
 				i += 1
-			while temp != "0x20"
+			temp =""
+			while temp != "20"
 				self.url += self.non_etud[i:i+1]
 				temp += self.non_etud[i+1:i+2]
 				i += 1
-			while temp != "0x0d0a"
+			temp = ""
+			while temp != "0d0a"
 				self.version += self.non_etud[i:i+1]
 				temp += self.non_etud[i+1:i+2]
 				i += 1
+			temp = ""
 			enthete = []
-			while temp != "0x20"
-				if temp == "0x20" : 
-					enthete.append " "
-				enthete.append(self.non_etud[i:i+1])
-				temp += self.non_etud[i+1:i+2]
-				i += 1
-		return True
+			val = []
+			while (temp != "0d0a" && self.non_etud[i+2:i+3] != "0x0d0a"):
+				while temp != "0d0a"
+					if temp == "20" : 
+						while temp != "0d0a":
+							val.append(self.non_etud[i:i+1])
+							temp = self.non_etud[i+2:i+6]
+						break
+					enthete.append(self.non_etud[i:i+1])
+					temp = self.non_etud[i+2:i+3]
+					i += 2
+			self.non_etud = self.non_etud[i:]
+
+		def interpreter_http(self):
+			temp = ""
+			i=0
+			res = ""
+			while temp != "0d0a0d0a":
+				temp = self.non_etud[i:i+8]
+				res += ascii(temp)
+				i += 8
+			return res
+
 
 def analyze_trames(content):
 	global lines
