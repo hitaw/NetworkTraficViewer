@@ -1,5 +1,5 @@
 global trames
-METHODES_HTTP = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"]
+METHODES_HTTP = ["ACL", "BASELINE-CONTROL", "BIND", "CHECKIN", "CHECKOUT", "CONNECT", "COPY", "DELETE", "GET", "HEAD", "LABEL", "LINK", "LOCK", "MERGE", "MKACTIVITY", "MKCALENDAR", "MKCOL", "MKREDIRECTREF", "MKWORKSPACE", "MOVE", "OPTIONS", "ORDERPATCH", "PATCH", "POST", "PRI", "PROPFIND", "PROPPATCH", "PUT", "REBIND", "REPORT", "SEARCH", "TRACE", "UNBIND", "UNCHECKOUT", "UNLINK", "UNLOCK", "UPDATE", "UPDATEREDIRECTREF", "VERSION-CONTROL", "*"]
 
 class Trame:
 
@@ -251,12 +251,15 @@ class Trame:
 		else:
 			i = 0
 			self.method = ""
-			while self.non_etud[i:i+2] != "20":
-				self.method += chr(self.non_etud[i:i+2])
+			while i < len(self.non_etud - 3) and self.non_etud[i:i+2] != "20":
+				self.method += chr(int(self.non_etud[i:i+2],16))
 				i += 2
-			self.non_etud = self.non_etud[i+2:]
-			if self.method in METHODES_HTTP:
-				self.http = True
+			if i < len(self.non_etud - 3):
+				self.non_etud = self.non_etud[i+2:]
+				if self.method in METHODES_HTTP:
+					self.http = True
+				else:
+					self.http = False
 			else:
 				self.http = False
 		return self.http
