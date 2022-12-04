@@ -38,11 +38,11 @@ class Trame:
 		self.sequence_number : int
 		self.ack : int
 		self.thl : int
-		self.reserved : int
-		self.tcp_flags : int
+		self.reserved : str
+		self.tcp_flags : str
 		self.window : int
-		self.checksum : int
-		self.options_padding_tcp : int
+		self.checksum : str
+		self.options_padding_tcp : str
 
 		#http
 		self.method : str
@@ -83,9 +83,23 @@ class Trame:
 				print("Header Checksum : " + self.header_checksum)
 				print("Ip source : " + self.src_ip)
 				print("Ip dest : " + self.dest_ip)
+				print("Options + padding : " + self.options_padding_ip)
 				print("\n\n")
-				return
 				if self.is_tcp():
+					self.analyze_tcp()
+					print("Analyse Partie TCP : \n")
+					print("Port Source : " + str(self.src_port))
+					print("Port Dest : " + str(self.dest_port))
+					print("Sequence Number : " + str(self.sequence_number))
+					print("ACK : " + str(self.ack))
+					print("Thl : " + str(self.thl))
+					print("Reserved : " + self.reserved)
+					print("TCP Flags : " + self.tcp_flags)
+					print("Window : " + str(self.window))
+					print("Checksum : " + str(self.checksum))
+					print("Options + padding : " + self.options_padding_tcp)
+					print("\n\n")
+					return
 					if self.is_http():
 						return
 				else:
@@ -144,13 +158,15 @@ class Trame:
 			self.total_length = int(self.non_etud[4:8],16)
 			self.identifier = int(self.non_etud[8:12],16)
 
-			temp = bin(int(self.non_etud[12],16))
-			if temp == "0b0":
-				self.ip_flags = "000"
-				self.fragment_offset = "0"+self.non_etud[13:16]
-			else:
-				self.ip_flags = "0" + temp[2:4]
-				self.fragment_offset = temp[4] + self.non_etud[13:16]
+			temp = bin(int(self.non_etud[12],16))[2:]
+			temp_size = len(temp)
+			while temp_size < 4:
+				temp = "0" + temp
+				temp_size += 1
+
+			self.ip_flags = temp[:3]
+			self.fragment_offset = temp[3] + self.non_etud[13:16]
+
 
 			self.time_to_live = int(self.non_etud[16:18],16)
 			self.protocol = self.non_etud[18:20]
@@ -194,6 +210,33 @@ class Trame:
 				self.mess_is = "Protocole UDP"
 		
 		return self.tcp
+
+	def analyze_tcp(self):
+		self.src_port = int(self.non_etud[:4],16)
+		self.dest_port = int(self.non_etud[4:8],16)
+		self.sequence_number = int(self.non_etud[8:16],16)
+		self.ack = int(self.non_etud[16:24],16)
+		self.thl = int(self.non_etud[24:25],16)
+
+		temp = bin(int(self.non_etud[25:28],16))[2:]
+		temp_size = len(temp)
+		while temp_size < 14:
+			temp = "0" + temp
+			temp_size += 1
+
+		self.reserved = temp[:6]
+		self.tcp_flags = temp[6:]
+
+		self.window = int(self.non_etud[28:32],16)
+		self.checksum = self.non_etud[32:36]
+		self.urgentPointer = int(self.non_etud[36:40],16)
+
+		options_size = self.header_length*4 - 20
+		i = 40 + options_size
+
+		self.options_padding_tcp = self.non_etud[40:i]
+
+		self.non_etud = self.non_etud[i:]
 
 	def is_http(self):
 		#jsp comment on reconnaît une trame http mdrr
