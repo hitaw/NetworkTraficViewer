@@ -1,4 +1,5 @@
 global trames
+METHODES_HTTP = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"]
 
 class Trame:
 
@@ -245,18 +246,23 @@ class Trame:
 
 	def is_http(self):
 		self.http = false
-		if len(self.non_etud) != 0 :
-			self.http = True
+		if len(self.non_etud) == 0 :
+			self.http = False
+		else:
+			i = 0
+			self.method = ""
+			while self.non_etud[i:i+2] != "20":
+				self.method += chr(self.non_etud[i:i+2])
+				i += 2
+			self.non_etud = self.non_etud[i+2:]
+			if self.method in METHODES_HTTP:
+				self.http = True
+			else:
+				self.http = False
 		return self.http
 
 	def analyze_http(self):
 		#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
-		temp = ""
-		i = 0
-		while temp != "20"
-			self.method += self.non_etud[i:i+1]
-			temp += self.non_etud[i+1:i+2]
-			i += 1
 		temp =""
 		while temp != "20"
 			self.url += self.non_etud[i:i+1]
