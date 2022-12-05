@@ -180,40 +180,44 @@ class Trame:
 		self.dest_port = int(self.non_etud[4:8],16)
 		self.sequence_number = int(self.non_etud[8:16],16)
 		self.ack = int(self.non_etud[16:24],16)
-		self.thl = int(self.non_etud[24:25],16)
+		self.thl = int(self.non_etud[24:25],16)*4
 
-		temp = bin(int(self.non_etud[25:28],16))
+		temp = bin(int(self.non_etud[25:28],16))[2:]
 		temp_size = len(temp)
-		if temp_size < 14 :
-			while temp_size < 14:
-				temp += "0"
-				temp_size +=1
-		self.reserved = temp[2:8]
-		self tcp_flags = temp[8:]
+		while temp_size < 14:
+			temp = "0" + temp
+			temp_size += 1
 
-		if self.tcp_flags[0] != "0":
-			print("URG")
-		if self.tcp_flags[1] != "0"
-			print("ACK")
-		if self.tcp_flags[2] != "0":
-			print("PSH")
-		if self.tcp_flags[3] !="0":
-			print("RST")
-		if self.tcp_flags[4] !="0":
-			print("SYN")
-		if self.tcp_flags[5] !="0":
-			print("FIN")
+		self.reserved = temp[:6]
+		self.tcp_flags = temp[6:]
 
-		self.window = int(self.non_etud[27:31],16)
-		self.checksum = int(self.non_etud[31:35],16)
-		self.urgentPointer = int(self.non_etud[35:39],16)
+		self.window = int(self.non_etud[28:32],16)
+		self.checksum = self.non_etud[32:36]
+		self.urgentPointer = int(self.non_etud[36:40],16)
 
-		options_size = self.header_length*4 - 20
+		options_size = (self.thl - 20)*2
 		i = 40 + options_size
 
-		self.options_padding = self.non_etud[40:i]
+		self.options_padding_tcp = self.non_etud[40:i]
 
 		self.non_etud = self.non_etud[i:]
+
+	def analyze_flags_tcp(self):
+		print("Si rien ne s'affiche, c'est que tous les flags étaient initiés à 0.")
+		res = ""
+		if self.tcp_flags[0] != "0":
+			res+="URG"
+		if self.tcp_flags[1] != "0"
+			res+="ACK"
+		if self.tcp_flags[2] != "0":
+			res+="PSH"
+		if self.tcp_flags[3] !="0":
+			res+="RST : rejet "
+		if self.tcp_flags[4] !="0":
+			res+="SYN"
+		if self.tcp_flags[5] !="0":
+			res+="FIN"
+		return res
 
 	def is_http(self):
 		self.http = false
