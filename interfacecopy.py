@@ -150,6 +150,7 @@ class Interface(Tk):
 
 		cont.set(content)
 		self.update_scroll_region()
+		canva.create_line(20,20,40,20,arrow='first')
 		return
 
 	def help(self):
