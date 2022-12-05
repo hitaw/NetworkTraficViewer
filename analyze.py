@@ -242,26 +242,26 @@ class Trame:
 
 	def analyze_flags_tcp(self):
 
-		self.flags = ""
+		self.flags = "["
 		if self.tcp_flags[0] != "0":
-			self.flags+="(URG)"
+			self.flags+="URG,"
 
 		if self.tcp_flags[1] != "0":
-			self.flags+="(ACK)"
+			self.flags+="ACK,"
 
 		if self.tcp_flags[2] != "0":
-			self.flags+="(PSH)"
+			self.flags+="PSH,"
 
 		if self.tcp_flags[3] !="0":
-			self.flags+="(RST) : rejet "
+			self.flags+="RST,"
 
 		if self.tcp_flags[4] !="0":
-			self.flags+="(SYN)"
+			self.flags+="SYN,"
 
 		if self.tcp_flags[5] !="0":
-			self.flags+="(FIN)"
-
-		return self.flags
+			self.flags+="FIN"
+		self.flags = self.flags[:-1]
+		self.flags += "]"
 
 	def conversion_ascii(self):
 		self.http = False		
