@@ -246,7 +246,7 @@ class Trame:
 		if self.tcp_flags[0] != "0":
 			self.flags+="(URG)"
 
-		if self.tcp_flags[1] != "0"
+		if self.tcp_flags[1] != "0":
 			self.flags+="(ACK)"
 
 		if self.tcp_flags[2] != "0":
@@ -282,6 +282,7 @@ def analyze_trames(content):
 	global lines
 	global trames
 
+	result = ""
 	trames = content.replace(" ","") #on retire les espaces
 	trames = trames.splitlines() #on sépare les lignes
 	t = trames
@@ -294,7 +295,7 @@ def analyze_trames(content):
 	for i in range(len(new)):
 			new[i].analyze_trame()
 	print(new)
-	return "Analysé !"
+	result+=analyze_trame
 
 def new_trame(t):
 	global lines
