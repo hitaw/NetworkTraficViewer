@@ -1,2 +1,3 @@
-from analyzecopy import *
+from analyze import *
+from appli import *
 
