@@ -45,6 +45,8 @@ class Trame:
 		self.urgentPointer : int
 		self.options_padding_tcp : str
 
+		self.flags : str
+
 		#http
 		self.content_http : str
 
@@ -237,6 +239,29 @@ class Trame:
 		self.options_padding_tcp = self.non_etud[40:i]
 
 		self.non_etud = self.non_etud[i:]
+
+	def analyze_flags_tcp(self):
+
+		self.flags = ""
+		if self.tcp_flags[0] != "0":
+			self.flags+="(URG)"
+
+		if self.tcp_flags[1] != "0"
+			self.flags+="(ACK)"
+
+		if self.tcp_flags[2] != "0":
+			self.flags+="(PSH)"
+
+		if self.tcp_flags[3] !="0":
+			self.flags+="(RST) : rejet "
+
+		if self.tcp_flags[4] !="0":
+			self.flags+="(SYN)"
+
+		if self.tcp_flags[5] !="0":
+			self.flags+="(FIN)"
+
+		return self.flags
 
 	def conversion_ascii(self):
 		self.http = False		
