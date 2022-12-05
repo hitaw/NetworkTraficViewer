@@ -270,6 +270,7 @@ class Trame:
 		while i < len(self.non_etud) - 3:
 			self.content_http += chr(int(self.non_etud[i:i+2],16))
 			i += 2
+		self.non_etud = ""
 
 	def is_http(self):
 		self.is_http = False
