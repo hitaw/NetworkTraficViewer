@@ -294,8 +294,9 @@ def analyze_trames(content):
 	new[0].analyze_trame()
 	for i in range(len(new)):
 			new[i].analyze_trame()
+			lines += 1
 	print(new)
-	result+=analyze_trame
+	return new
 
 def new_trame(t):
 	global lines

@@ -2,22 +2,40 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import StringVar
 from analyze import *
 
 content = None
+cont = None
 label = None
 canva = None
-lines = 1
 analyzed = False
+frame = None
 
 class Interface(Tk):
 
 	def __init__(self):
+		global cont
+		global canva
+		global label
+		global frame
+		global xscroll
+		global yscroll
+
+
 		Tk.__init__(self)
+
+		cont = StringVar()
+		canva = Canvas(self)
+		frame = Frame(canva)
+		xscroll = Scrollbar(self)
+		yscroll = Scrollbar(self)
+
 		self.create_menu_bar()
 		self.geometry("1920x1080")
 		self.title("Network traffic viewer")
 		self.create_canva()
+		self.create_label()
 
 
 	def create_menu_bar(self):
@@ -43,38 +61,31 @@ class Interface(Tk):
 	def create_canva(self):
 		global label
 		global canva
+		global frame
+		global cont
+		global yscroll
+		global xscroll
 
-		canva = Canvas(self, width=1980, height=1080, bg='lightgrey')
-		canva.grid(row = 0, column = 0)
-		label = canva.create_text(952.5, 480, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert", anchor ="center", justify = "center")
-		
-	def create_scrollbar(self):
-		global canva
+		canva.config(xscrollcommand = xscroll.set, yscrollcommand = yscroll.set, bg = "lightgrey")
+		xscroll.config(orient = HORIZONTAL, command = canva.xview)
+		yscroll.config(orient = VERTICAL, command = canva.yview)
 
-		sheight = lines * 24.5
-		canva.config(scrollregion = (0,0, 1980, sheight), width = 1905, height = 960)
-		xscroll = ttk.Scrollbar(self, orient = HORIZONTAL)
-		yscroll = ttk.Scrollbar(self, orient = VERTICAL)
-		xscroll.grid(row=1, column=0, sticky=E+W)
-		yscroll.grid(row=0, column=1,  sticky=S+N)
+		xscroll.pack(fill = X, side = BOTTOM, expand = FALSE)
+		yscroll.pack(fill = Y, side = RIGHT, expand = FALSE)
+		canva.pack(fill = BOTH, side = LEFT, expand = TRUE)
+		canva.create_window(0, 0, window = frame, anchor = NW)
 
-		xscroll["command"]=canva.xview
-		yscroll["command"]=canva.yview
-		canva['xscrollcommand']=xscroll.set
-		canva['yscrollcommand']=yscroll.set
+	def create_label(self):
+		global label
+		cont.set("Aucun fichier n'est ouvert")
+		label = Label(frame, textvariable = cont).grid(row = 1, column = 1)
 
-	def modify_scrollbar(self):
-		global canva
-
-		sheight = lines * 24.5
-		canva.config(scrollregion = (0,0, 1980, sheight), width = 1905, height = 960)
 
 	def open_file(self):
 
 		global content
 		global analyzed
 		global label
-		global lines
 
 		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
@@ -92,25 +103,18 @@ class Interface(Tk):
 			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")
 			return
 
-		for line in file:
-			lines += 1
-		print(lines)
-
 		file.seek(0)
 		content = file.read()
 		file.close()
 
-		canva.itemconfig(label, text = content, justify ="left")
-		canva.moveto(label, 10, 10)
-		self.create_scrollbar()
-
+		cont.set(content)
+		self.update_scroll_region()
 
 	def close_file(self):
 		global content
 		global analyzed
 		global label
-		global canva
-		global lines
+		global cont
 
 		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Fermeture","Un fichier a été ouvert mais n'est pas analysé, voulez-vous vraiment fermé le fichier ?")
@@ -119,9 +123,7 @@ class Interface(Tk):
 
 		content = None
 		analyzed = False
-		lines = 0
-		canva.itemconfig(label, text = "Aucun fichier n'est ouvert")
-
+		cont.set("Aucun fichier n'est ouvert")
 
 	def analyze_file(self):
 		global content
@@ -143,9 +145,17 @@ class Interface(Tk):
 		global content
 		global label
 		global canva
-		self.modify_scrollbar()
-		canva.itemconfig(label, text = content)
+
+		cont.set(content)
+		self.update_scroll_region()
 		return
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
+
+	def update_scroll_region(self):
+		global canva 
+		global frame
+
+		canva.update_idletasks()
+		canva.config(scrollregion = frame.bbox())
