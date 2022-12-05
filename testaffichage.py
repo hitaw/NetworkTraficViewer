@@ -1,19 +1,31 @@
 from appli import *
-
+liste_ip = []
 
 def affichage(liste_de_trames):
-	background = None
+	back = None
+	commentaire = ""
 	for trame in liste_de_trames:
 
-		if trame.http:
-			background = "lightgreen"
+		if trame.ethernet:
 
-		elif trame.tcp:
-			background = "lightblue"
+			if trame.ipv4:
 
-		elif trame.ipv4:
-			background = "lightpurple"
+				if trame.tcp:
+
+					if trame.http:
+						back = "lightgreen"
 			
-		elif trame.ethernet:
-			background = "lightred"
+						i = 0
+						while self.content_http[i] != "\n":
+							commentaire += self.content_http[i]
+							i += 1
+
+					else:
+						back = "lightblue"
+				else:
+					back = "lightpurple"
+			else:
+				back = "lightred"
+
+
 
