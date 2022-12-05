@@ -1,5 +1,4 @@
 global trames
-METHODES_HTTP = ["ACL", "BASELINE-CONTROL", "BIND", "CHECKIN", "CHECKOUT", "CONNECT", "COPY", "DELETE", "GET", "HEAD", "LABEL", "LINK", "LOCK", "MERGE", "MKACTIVITY", "MKCALENDAR", "MKCOL", "MKREDIRECTREF", "MKWORKSPACE", "MOVE", "OPTIONS", "ORDERPATCH", "PATCH", "POST", "PRI", "PROPFIND", "PROPPATCH", "PUT", "REBIND", "REPORT", "SEARCH", "TRACE", "UNBIND", "UNCHECKOUT", "UNLINK", "UNLOCK", "UPDATE", "UPDATEREDIRECTREF", "VERSION-CONTROL", "*"]
 
 class Trame:
 
@@ -47,13 +46,7 @@ class Trame:
 		self.options_padding_tcp : str
 
 		#http
-		self.method : str
-		self.request_answer : bool
-		self.url : int
-		self.statut : int
-		self.version : int
-		self.champs : dict
-		self.data : str
+		self.content_http : str
 
 		self.mess_is = ""
 		self.mess_error = ""
@@ -103,9 +96,13 @@ class Trame:
 					print("\n\n")
 
 					print(self.non_etud + "\n\n")
-					return
+					
+					self.conversion_ascii()
 					if self.is_http():
+						print("HTTP : " + self.content_http)
 						return
+					else:
+						self.content_http = None
 				else:
 					self.mess_is = "Ceci n'est pas une trame TCP\n" + self.mess_is
 			else:
@@ -244,57 +241,19 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-	def is_http(self):
+	def conversion_ascii(self):
 		self.http = False		
 		i = 0
-		self.method = ""
-		while i < len(self.non_etud - 3) and self.non_etud[i:i+2] != "20":
-			self.method += chr(int(self.non_etud[i:i+2],16))
+		self.content_http = ""
+		while i < len(self.non_etud) - 3:
+			self.content_http += chr(int(self.non_etud[i:i+2],16))
 			i += 2
-		if i < len(self.non_etud - 3):
-			self.non_etud = self.non_etud[i+2:]
-			if self.method in METHODES_HTTP:
-				self.http = True
-		return self.http
 
-	def analyze_http(self):
-		#j'ai tenté de comprendre, je suis VRAIMENT pas sûre de ce que j'ai fait
-		temp =""
-		while temp != "20"
-			self.url += self.non_etud[i:i+1]
-			temp += self.non_etud[i+1:i+2]
-			i += 1
-		temp = ""
-		while temp != "0d0a"
-			self.version += self.non_etud[i:i+1]
-			temp += self.non_etud[i+1:i+2]
-			i += 1
-		temp = ""
-		enthete = []
-		val = []
-		while (temp != "0d0a" && self.non_etud[i+2:i+3] != "0x0d0a"):
-			while temp != "0d0a"
-				if temp == "20" : 
-					while temp != "0d0a":
-						val.append(self.non_etud[i:i+1])
-						temp = self.non_etud[i+2:i+6]
-				enthete.append(self.non_etud[i:i+1])
-				temp = self.non_etud[i+2:i+3]
-				i += 2
-		self.non_etud = self.non_etud[i:]
-		
-	def interpreter_http(self):
-		temp = ""
-		i=0
-		j = 0
-		res = ""
-		while temp != "0d0a0d0a":
-			while j < len(temp):
-				res += chr(temp[j])
-				j++
-			temp = self.non_etud[i:i+8]
-			i += 8
-		return res
+	def is_http(self):
+		self.is_http = False
+		if "HTTP" in self.content_http:
+			self.is_http = True
+		return self.is_http
 
 
 def analyze_trames(content):
