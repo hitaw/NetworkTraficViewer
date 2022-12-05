@@ -27,7 +27,7 @@ class Interface(Tk):
 
 		cont = StringVar()
 		canva = Canvas(self)
-		frame = Frame(canva)
+		frame = Frame(canva, bg = "lightgrey")
 		xscroll = Scrollbar(self)
 		yscroll = Scrollbar(self)
 
@@ -36,7 +36,6 @@ class Interface(Tk):
 		self.title("Network traffic viewer")
 		self.create_canva()
 		self.create_label()
-
 
 	def create_menu_bar(self):
 		menu_bar = Menu(self)
@@ -78,14 +77,19 @@ class Interface(Tk):
 	def create_label(self):
 		global label
 		cont.set("Aucun fichier n'est ouvert")
-		label = Label(frame, textvariable = cont).grid(row = 1, column = 1)
+		label = Label(frame, textvariable = cont, font = "Arial", justify = "left", bg = "lightgrey").grid(row = 1, column = 1, pady = 10, padx = 10)
+	
+	def update_scroll_region(self):
+		global canva 
+		global frame
 
+		canva.update_idletasks()
+		canva.config(scrollregion = frame.bbox())
 
 	def open_file(self):
 
 		global content
 		global analyzed
-		global label
 
 		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
@@ -113,7 +117,6 @@ class Interface(Tk):
 	def close_file(self):
 		global content
 		global analyzed
-		global label
 		global cont
 
 		if content is not None and analyzed == False:
@@ -143,7 +146,6 @@ class Interface(Tk):
 
 	def print_analyzed_file(self):
 		global content
-		global label
 		global canva
 
 		cont.set(content)
@@ -152,10 +154,3 @@ class Interface(Tk):
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
-
-	def update_scroll_region(self):
-		global canva 
-		global frame
-
-		canva.update_idletasks()
-		canva.config(scrollregion = frame.bbox())
