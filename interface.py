@@ -4,6 +4,11 @@ from tkinter import ttk
 from tkinter import messagebox
 from analyze import *
 
+content = None
+label = None
+canva = None
+lines = 1
+analyzed = False
 
 class Interface(Tk):
 

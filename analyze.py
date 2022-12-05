@@ -93,10 +93,7 @@ class Trame:
 					print("Checksum : " + str(self.checksum))
 					print("Urgent Pointer : " + str(self.urgentPointer))
 					print("Options + padding : " + self.options_padding_tcp)
-					print("\n\n")
-
-					print(self.non_etud + "\n\n")
-					
+					print("\n\n")					
 					self.conversion_ascii()
 					if self.is_http():
 						print("HTTP : " + self.content_http)
@@ -269,8 +266,8 @@ def analyze_trames(content):
 		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
 		new.append(res)
 	new[0].analyze_trame()
-	"""for i in range(len(new)):
-					new[i].analyze_trame()"""
+	for i in range(len(new)):
+			new[i].analyze_trame()
 	print(new)
 	return "Analysé !"
 
