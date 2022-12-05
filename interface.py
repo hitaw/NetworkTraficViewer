@@ -33,7 +33,7 @@ class Interface(Tk):
 
 		self.create_menu_bar()
 		self.geometry("1920x1080")
-		self.title("Network traffic viewer")
+		self.title("Fireshark")
 		self.create_canva()
 		self.create_label()
 
