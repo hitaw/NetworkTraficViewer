@@ -162,7 +162,13 @@ class Interface(Tk):
 				sens_arrow = 'last'
 			else :
 				sens_arrow = 'first'
-			canva.create_line(dico[source]*20,i,dico[dest]*20,i,arrow=sens_arrow,tag=source+dest)
+			ports = ""
+			if temp.tcp :
+				ports += "port source : "
+				ports += temp.src_port
+				ports += " port destination : "
+				ports += temp.dest_port
+			canva.create_line(dico[source]*20,i,dico[dest]*20,i,arrow=sens_arrow,tag=source+" "+ports+" "+dest)
 		return
 
 	def recup_ip_address(content):
