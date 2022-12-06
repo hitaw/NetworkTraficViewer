@@ -166,9 +166,21 @@ class Interface(Tk):
 		return
 
 	def recup_ip_address(content):
-		if temp.ethernet and not temp.ipv4:
+		res = []
+		for i in len(content):
+			temp = content[i]
+			source = 0
+			dest = 0
+			if temp.ethernet and not temp.ipv4:
+				source = temp.src_mac
+				dest = temp.dest_mac
+			else :
+				source = temp.src_ip
+				dest = temp.dest_ip 
 
-		return dico
+			res.update({source:i,dest:i+1})
+
+		return res
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
