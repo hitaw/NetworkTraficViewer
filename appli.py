@@ -1,4 +1,4 @@
-from interface import *
+from interfacecopy import *
 
 window = Interface()
 window.mainloop()

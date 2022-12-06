@@ -3,7 +3,7 @@ from tkinter.filedialog import askopenfilename
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
-from analyze import *
+from analyzecopy import *
 
 content = None
 cont = None
@@ -36,6 +36,7 @@ class Interface(Tk):
 		self.title("Network traffic viewer")
 		self.create_canva()
 		self.create_label()
+
 
 	def create_menu_bar(self):
 		menu_bar = Menu(self)
@@ -147,11 +148,27 @@ class Interface(Tk):
 	def print_analyzed_file(self):
 		global content
 		global canva
+		global frame
 
-		cont.set(content)
-		self.update_scroll_region()
-		canva.create_line(20,20,40,20,arrow='first')
+		#cont.set(content)
+		#self.update_scroll_region()
+
+		for i in len(content):
+			temp = content[i]
+			dico = recup_ip_address(content)
+			source = temp.src_ip
+			dest = temp.dest_ip
+			if  dico[source] < dico[dest] :
+				sens_arrow = 'last'
+			else :
+				sens_arrow = 'first'
+			canva.create_line(dico[source]*20,i,dico[dest]*20,i,arrow=sens_arrow,tag=source+dest)
 		return
+
+	def recup_ip_address(content):
+		if temp.ethernet and not temp.ipv4:
+
+		return dico
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
