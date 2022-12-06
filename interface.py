@@ -36,6 +36,9 @@ class Interface(Tk):
 		self.title("Fireshark")
 		self.create_canva()
 		self.create_label()
+		canva.create_line(500,0,500, 1000, fill = "grey", dash = (5,1))
+		logo = PhotoImage(file = "logo.png")
+		self.iconphoto(False, logo)
 
 	def create_menu_bar(self):
 		menu_bar = Menu(self)

@@ -1,14 +1,25 @@
 from appli import *
 liste_ip = []
+lite_mac = []
 
 def affichage(liste_de_trames):
+	global canva
+
 	back = None
 	commentaire = ""
+	First = True
+	total = len(liste_de_trames)
 	for trame in liste_de_trames:
 
 		if trame.ethernet:
 
 			if trame.ipv4:
+
+				if trame.dest_ip not in liste_ip:
+					liste_ip += trame.dest_ip
+					canva.create_line(40,100,200, 0, fill = "grey", dash = 40) 
+				if trame.src_ip not in liste_ip:
+					liste_ip += trame.src_ip
 
 				if trame.tcp:
 
@@ -16,16 +27,22 @@ def affichage(liste_de_trames):
 						back = "lightgreen"
 			
 						i = 0
-						while self.content_http[i] != "\n":
-							commentaire += self.content_http[i]
+						while trame.content_http[i] != "\n":
+							commentaire += trame.content_http[i]
 							i += 1
 
 					else:
 						back = "lightblue"
+						trame.analyze_flags_tcp()
+						commentaire = 
+
 				else:
 					back = "lightpurple"
+
 			else:
 				back = "lightred"
+				liste_mac += self.dest_mac
+				liste_mac += self.src_mac
 
 
 
