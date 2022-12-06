@@ -59,68 +59,23 @@ class Trame:
 	def analyze_trame(self):
 		if self.is_ethernet():
 			self.analyze_ethernet()
-			print("Analyse Partie Ethernet : \n")
-			print("Adresse mac de destination : " +self.dest_mac)
-			print("Adresse mac source : " +self.src_mac)
-			print("Type : " + str(self.type))
-			print("\n\n")
 			if self.is_ipv4():
 				self.analyze_ipv4()
-				print("Analyse Partie IPv4 : \n")
-				print("Version : " + str(self.ip_v))
-				print("Header Length : " + str(self.header_length))
-				print("ToS : "+ str(self.ToS))
-				print("Total length : " + str(self.total_length))
-				print("Identifier : " + str(self.identifier))
-				print("Ip_Flags : " +self.ip_flags)
-				print("Fragment Offset : " + self.fragment_offset)
-				print("TTL : " + str(self.time_to_live))
-				print("Protocole : " + self.protocol)
-				print("Header Checksum : " + self.header_checksum)
-				print("Ip source : " + self.src_ip)
-				print("Ip dest : " + self.dest_ip)
-				print("Options + padding : " + self.options_padding_ip)
-				print("\n\n")
-				if self.is_tcp():
-					self.analyze_tcp()
-					print("Analyse Partie TCP : \n")
-					print("Port Source : " + str(self.src_port))
-					print("Port Dest : " + str(self.dest_port))
-					print("Sequence Number : " + str(self.sequence_number))
-					print("ACK : " + str(self.ack))
-					print("Thl : " + str(self.thl))
-					print("Reserved : " + self.reserved)
-					print("TCP Flags : " + self.tcp_flags)
-					print("Window : " + str(self.window))
-					print("Checksum : " + str(self.checksum))
-					print("Urgent Pointer : " + str(self.urgentPointer))
-					print("Options + padding : " + self.options_padding_tcp)
-					print("\n\n")					
-					self.conversion_ascii()
-					if self.is_http():
-						print("HTTP : " + self.content_http)
-						return
-					else:
-						self.content_http = None
-				else:
-					self.mess_is = "Ceci n'est pas une trame TCP\n" + self.mess_is
-			else:
-				self.mess_is = "Ceci n'est pas une trame IPv4\n" + self.mess_is
-		else:
-			self.mess_is = "Ceci n'est pas une trame Ethernet II\n" + self.mess_is
+				if self.ipv4:
+					if self.is_tcp():
+						self.analyze_tcp()				
+						self.conversion_ascii()
+						self.is_http()
 
 
 	def is_ethernet(self):
-		if  len(self.non_etud) < 128:
-			self.mess_error = "Trame trop courte (moins de 64 octets)"
-			self.ethernet = False
-		elif len(self.non_etud) > 3028:
-			self.mess_error = "Trame trop longue (plus de 1512 octets)"
-			self.ethernet = False
+		self.ethernet = False
+		if  len(self.non_etud) < 128 or len(self.non_etud) > 3028:
+			self.mess_error = "Trame non conforme (moins de 64 octets ou plus de 1512 octets)"
 		elif int(self.non_etud[24:28],16) > 1500:
 			self.ethernet = True
-		else:
-			self.ethernet = False
+		else: 
+			self.mess_is = "Non Ethernet II"
 		return self.ethernet
 
 	def analyze_ethernet(self):
@@ -195,6 +150,7 @@ class Trame:
 
 		else:
 			self.mess_error = 'Mauvaise valeur : ip_version != 4'
+			self.ipv4 = False
 
 	def is_tcp(self):
 		if self.protocol == "06":
@@ -210,6 +166,9 @@ class Trame:
 
 			elif self.protocol == "11":
 				self.mess_is = "Protocole UDP"
+
+			else:
+				self.mess_is = "Protocole inconnu"
 		
 		return self.tcp
 
@@ -274,8 +233,10 @@ class Trame:
 
 	def is_http(self):
 		self.is_http = False
-		if "HTTP" in self.content_http:
+		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
 			self.is_http = True
+		else:
+			self.content_http = None
 		return self.is_http
 
 

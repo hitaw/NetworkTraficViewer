@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
 from analyze import *
+from testaffichage import *
 
 content = None
 cont = None
@@ -150,8 +151,9 @@ class Interface(Tk):
 	def print_analyzed_file(self):
 		global content
 		global canva
+		global cont
 
-		cont.set(content)
+		change_cont(cont)
 		self.update_scroll_region()
 		return
 

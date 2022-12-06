@@ -1,8 +1,13 @@
-from appli import *
 liste_ip = []
 lite_mac = []
+from interface import *
 
-def affichage(liste_de_trames):
+def change_cont(cont):
+	r = ""
+	for i in range(1000):
+		r += "\n"
+	cont.set(r)
+"""def affichage(liste_de_trames):
 	global canva
 
 	back = None
@@ -42,7 +47,7 @@ def affichage(liste_de_trames):
 			else:
 				back = "lightred"
 				liste_mac += self.dest_mac
-				liste_mac += self.src_mac
+				liste_mac += self.src_mac"""
 
 
 
