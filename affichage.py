@@ -1,7 +1,4 @@
 from interface import *
-liste_label = []
-liste_button = []
-
 
 def recup_address(liste_trames):
 	res = {}
@@ -21,23 +18,20 @@ def recup_address(liste_trames):
 
 		if source not in res:
 			res.update({source:j})
-			j += 300
+			j += 500
 
 		if dest not in res:
 			res.update({dest:j})
-			j += 300
+			j += 500
 
 	return res,j
 
 def tri_trames(liste_trames):
 
 	trames_ethernet = []
-	trames_non_ethernet = []
 
 	for trame in liste_trames:
 		if trame.ethernet:
 			trames_ethernet.append(trame)
-		else:
-			trames_non_ethernet.append(trame)
 
-	return (trames_ethernet, trames_non_ethernet)
+	return (trames_ethernet)
