@@ -5,7 +5,6 @@ from tkinter import messagebox
 from tkinter import StringVar
 from analyze import *
 from affichage import *
-from PIL import ImageGrab, Image
 
 content = None
 cont = None
@@ -14,7 +13,6 @@ canva = None
 analyzed = False
 lines = 0
 column = 0
-liste_label = []
 num = 1
 
 class Interface(Tk):
@@ -169,9 +167,8 @@ class Interface(Tk):
 			mes = messagebox.showerror("Vous ne pouvez pas enregistrer un fichier qui n'est pas analysé")
 			return
 		
-		name = "screen_fireshark.pdf" + str(num)
-		img = ImageGrab.grab()
-		img.save('name',save_all=True)
+		name = "screen_fireshark" + str(num) + ".pdf"
+		canva.postscript(file=name, colormode='color', width = column, height = lines*24.5, pagewidth = column, pageheight = lines*24.5)
 		messagebox.showinfo("","Bien enregistré")
 		num += 1
 
@@ -207,9 +204,7 @@ class Interface(Tk):
 			canva.create_line(dico[source],75 + i*60,dico[dest],75 + i*60, fill = color, arrow="last",tag=trame.mess_is)
 
 		for address in dico:
-			l = Label(canva, text = address, font = "Arial", justify = "center", bg = "lightgrey")
-			liste_label.append(l)
-			l.place(x = dico[address]-40, y = 10)
+			canva.create_text(dico[address], 10, fill = "black", font = "Arial", text = address)
 			canva.create_line(dico[address],20,dico[address], 75 + len(trames_ethernet)*60, fill = "grey", dash = (5,1))
 			last = dico[address]
 
