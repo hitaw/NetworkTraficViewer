@@ -10,6 +10,8 @@ class Trame:
 	def __init__(self, content):
 		self.content = content
 
+		self.index : int
+
 		self.ethernet : bool
 		self.ipv4 : bool
 		self.tcp : bool
@@ -289,6 +291,7 @@ def analyze_trames(content):
 		new.append(res)
 	for i in range(len(new)):
 		new[i].analyze_trame()
+		new[i].index = i+1
 	return new
 
 def new_trame(t):
