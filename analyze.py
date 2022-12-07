@@ -57,7 +57,7 @@ class Trame:
 		self.flags : str
 
 		#http
-		self.content_http = None
+		self.content_http : str
 
 		self.mess_is : str
 		self.mess_error : str
@@ -73,7 +73,7 @@ class Trame:
 				if self.ipv4:
 					if self.is_tcp():
 						self.analyze_tcp()
-						self.analyze_flags_tcp()			
+						self.analyze_flags_tcp(self.tcp_flags)			
 						self.conversion_ascii()
 						self.is_http()
 
@@ -212,26 +212,26 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-	def analyze_flags_tcp(self): 
+	def analyze_flags_tcp(self,liste_flags): 
 		global premier_sequence_number
 		global premier_acknowlegment_number
 		global port_s
 		global port_d
 
 		self.flags = "["
-		if self.tcp_flags[0] == "1":
+		if liste_flags[0] == "1":
 			self.flags+="URG,"
 
-		if self.tcp_flags[1] == "1":
+		if liste_flags[1] == "1":
 			self.flags+="ACK,"			
 
-		if self.tcp_flags[2] == "1":
+		if liste_flags[2] == "1":
 			self.flags+="PSH,"
 
-		if self.tcp_flags[3] == "1":
+		if liste_flags[3] == "1":
 			self.flags+="RST,"
 
-		if self.tcp_flags[4] == "1":
+		if liste_flags[4] == "1":
 			self.flags+="SYN,"
 
 			if self.tcp_flags[1] == "0":
@@ -255,9 +255,9 @@ class Trame:
 			self.relative_sequence_number = self.sequence_number - premier_acknowlegment_number
 			self.relative_ack_number = self.ack - premier_sequence_number 
 
-	def conversion_ascii(self):		
+	def conversion_ascii(self):
+		self.http = False		
 		i = 0
-		self.http = False
 		self.content_http = ""
 		while i < len(self.non_etud) - 3:
 			self.content_http += chr(int(self.non_etud[i:i+2],16))
@@ -265,17 +265,18 @@ class Trame:
 		self.non_etud = ""
 
 	def is_http(self):
-		self.http = False
+		self.is_http = False
 		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
-			self.http = True
+			self.is_http = True
 			i = 0
 			self.mess_is = ""
 			while self.content_http[i] != "\n":
 				self.mess_is += self.content_http[i]
 				i += 1
 		else:
+			self.content_http = None
 			self.mess_is = "Non HTTP, Protocole Inconnu"
-		return self.http
+		return self.is_http
 
 
 def analyze_trames(content):
