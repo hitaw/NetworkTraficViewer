@@ -198,8 +198,8 @@ class Trame:
 			temp = "0" + temp
 			temp_size += 1
 
-		self.reserved = temp[:6]
-		self.tcp_flags = temp[6:]
+		self.reserved = temp[:8]
+		self.tcp_flags = temp[8:]
 
 		self.window = int(self.non_etud[28:32],16)
 		self.checksum = self.non_etud[32:36]
@@ -265,18 +265,17 @@ class Trame:
 		self.non_etud = ""
 
 	def is_http(self):
-		self.is_http = False
+		self.http = False
 		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
-			self.is_http = True
+			self.http = True
 			i = 0
 			self.mess_is = ""
 			while self.content_http[i] != "\n":
 				self.mess_is += self.content_http[i]
 				i += 1
 		else:
-			self.content_http = None
 			self.mess_is = "Non HTTP, Protocole Inconnu"
-		return self.is_http
+		return self.http
 
 
 def analyze_trames(content):
