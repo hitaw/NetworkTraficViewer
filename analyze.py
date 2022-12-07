@@ -1,5 +1,4 @@
-global trames
-
+trames = None
 premier_sequence_number = 0
 premier_acknowlegment_number = 0
 port_s = 0
@@ -34,8 +33,8 @@ class Trame:
 		self.time_to_live : int
 		self.protocol : str
 		self.header_checksum : str
-		self.src_ip = ""
-		self.dest_ip = ""
+		self.src_ip : str
+		self.dest_ip : str
 		self.options_padding_ip : str
 
 		#tcp
@@ -58,8 +57,8 @@ class Trame:
 		#http
 		self.content_http : str
 
-		self.mess_is = ""
-		self.mess_error = ""
+		self.mess_is : str
+		self.mess_error : str
 
 	def __repr__(self):
 		return self.content
@@ -71,7 +70,8 @@ class Trame:
 				self.analyze_ipv4()
 				if self.ipv4:
 					if self.is_tcp():
-						self.analyze_tcp()				
+						self.analyze_tcp()
+						self.analyze_flags_tcp()			
 						self.conversion_ascii()
 						self.is_http()
 
@@ -79,7 +79,7 @@ class Trame:
 	def is_ethernet(self):
 		self.ethernet = False
 		if  len(self.non_etud) < 128 or len(self.non_etud) > 3028:
-			self.mess_error = "Trame non conforme (moins de 64 octets ou plus de 1512 octets)"
+			self.mess_is = "Trame non conforme (moins de 64 octets ou plus de 1512 octets)"
 		elif int(self.non_etud[24:28],16) > 1500:
 			self.ethernet = True
 		else: 
@@ -140,6 +140,9 @@ class Trame:
 			src_ip = self.non_etud[24:32]
 			dest_ip = self.non_etud[32:40]
 
+			self.dest_ip = ""
+			self.src_ip = ""
+
 			i = 0
 			while i < 8:
 				self.dest_ip += str(int(dest_ip[i:i+2],16))+"."
@@ -157,7 +160,7 @@ class Trame:
 			self.non_etud = self.non_etud[i:]
 
 		else:
-			self.mess_error = 'Mauvaise valeur : ip_version != 4'
+			self.mess_is = "Mauvaise valeur : ip_version != 4 et type == 0x0800"
 			self.ipv4 = False
 
 	def is_tcp(self):
@@ -247,7 +250,7 @@ class Trame:
 			self.relative_sequence_number = self.sequence_number - premier_sequence_number
 			self.relative_ack_number = self.ack - premier_acknowlegment_number 
 		else:
-			self.relative_sequence_number = self.sequence_number - premier_acknolegment_number
+			self.relative_sequence_number = self.sequence_number - premier_acknowlegment_number
 			self.relative_ack_number = self.ack - premier_sequence_number 
 
 	def conversion_ascii(self):
@@ -263,38 +266,36 @@ class Trame:
 		self.is_http = False
 		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
 			self.is_http = True
+			i = 0
+			self.mess_is = ""
+			while self.content_http[i] != "\n":
+				self.mess_is += self.content_http[i]
+				i += 1
 		else:
 			self.content_http = None
+			self.mess_is = "Non HTTP, Protocole Inconnu"
 		return self.is_http
 
 
 def analyze_trames(content):
-	global lines
 	global trames
-
 	result = ""
 	trames = content.replace(" ","") #on retire les espaces
 	trames = trames.splitlines() #on sépare les lignes
 	t = trames
 	new = []
-	lines = 0
 	while t != []:
 		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
 		new.append(res)
-	new[0].analyze_trame()
 	for i in range(len(new)):
-			new[i].analyze_trame()
-			lines += 1
-	print(new)
+		new[i].analyze_trame()
 	return new
 
 def new_trame(t):
-	global lines
 
 	res = []
 	if t[0][:4] == "0000": #on vérifie si le début de la nouvelle trame commence bien par l'offset "0000"
 		res.append(t[0].lower()) #si oui, on ajoute la ligne à la nouvelle trame
-		lines += 1
 		t = t[1:] #on retire la première ligne pour gérer les autres
 	else:
 		return None
