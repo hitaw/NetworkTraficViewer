@@ -92,10 +92,11 @@ class Interface(Tk):
 		global lines
 		global column
 
-		if content is not None and analyzed == False:
-			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
+		if content is not None:
+			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert, voulez-vous vraiment ouvrir un autre fichier ?")
 			if answer == False:
 				return
+			self.close_file()
 
 		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
