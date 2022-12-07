@@ -1,5 +1,11 @@
 global trames
 
+premier_sequence_number = 0
+premier_acknowlegment_number = 0
+port_s = 0
+port_d = 0
+
+
 class Trame:
 
 	def __init__(self, content):
@@ -44,6 +50,8 @@ class Trame:
 		self.checksum : str
 		self.urgentPointer : int
 		self.options_padding_tcp : str
+		self.relative_sequence_number : str
+		self.relative_ack_number : str
 
 		self.flags : str
 
@@ -199,28 +207,48 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-	def analyze_flags_tcp(self):
+	def analyze_flags_tcp(self): 
+		global premier_sequence_number
+		global premier_acknowlegment_number
+		global port_s
+		global port_d
 
 		self.flags = "["
-		if self.tcp_flags[0] != "0":
+		if self.tcp_flags[0] == "1":
 			self.flags+="URG,"
 
-		if self.tcp_flags[1] != "0":
-			self.flags+="ACK,"
+		if self.tcp_flags[1] == "1":
+			self.flags+="ACK,"			
 
-		if self.tcp_flags[2] != "0":
+		if self.tcp_flags[2] == "1":
 			self.flags+="PSH,"
 
-		if self.tcp_flags[3] !="0":
+		if self.tcp_flags[3] == "1":
 			self.flags+="RST,"
 
-		if self.tcp_flags[4] !="0":
+		if self.tcp_flags[4] == "1":
 			self.flags+="SYN,"
 
-		if self.tcp_flags[5] !="0":
+			if self.tcp_flags[1] == "0":
+				premier_sequence_number = self.sequence_number
+				port_s = self.src_port
+				port_d = self.dest_port
+
+			else:
+				premier_acknowlegment_number = self.sequence_number
+
+		if self.tcp_flags[5] =="1":
 			self.flags+="FIN"
+
 		self.flags = self.flags[:-1]
 		self.flags += "]"
+
+		if self.src_port == port_s:
+			self.relative_sequence_number = self.sequence_number - premier_sequence_number
+			self.relative_ack_number = self.ack - premier_acknowlegment_number 
+		else:
+			self.relative_sequence_number = self.sequence_number - premier_acknolegment_number
+			self.relative_ack_number = self.ack - premier_sequence_number 
 
 	def conversion_ascii(self):
 		self.http = False		

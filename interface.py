@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
 from analyze import *
-from testaffichage import *
+#from affichage import *
 
 content = None
 cont = None
@@ -37,6 +37,8 @@ class Interface(Tk):
 		self.title("Fireshark")
 		self.create_canva()
 		self.create_label()
+		cont.set("\n")
+		canva.create_line(300,12,20,12, fill = "black", arrow="last",tag="lol")
 		canva.create_line(500,0,500, 1000, fill = "grey", dash = (5,1))
 		logo = PhotoImage(file = "logo.png")
 		self.iconphoto(False, logo)
