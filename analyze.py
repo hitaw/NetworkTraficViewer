@@ -57,7 +57,7 @@ class Trame:
 		self.flags : str
 
 		#http
-		self.content_http : str
+		self.content_http = None
 
 		self.mess_is : str
 		self.mess_error : str
@@ -255,9 +255,9 @@ class Trame:
 			self.relative_sequence_number = self.sequence_number - premier_acknowlegment_number
 			self.relative_ack_number = self.ack - premier_sequence_number 
 
-	def conversion_ascii(self):
-		self.http = False		
+	def conversion_ascii(self):		
 		i = 0
+		self.http = False
 		self.content_http = ""
 		while i < len(self.non_etud) - 3:
 			self.content_http += chr(int(self.non_etud[i:i+2],16))
@@ -265,18 +265,17 @@ class Trame:
 		self.non_etud = ""
 
 	def is_http(self):
-		self.is_http = False
+		self.http = False
 		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
-			self.is_http = True
+			self.http = True
 			i = 0
 			self.mess_is = ""
 			while self.content_http[i] != "\n":
 				self.mess_is += self.content_http[i]
 				i += 1
 		else:
-			self.content_http = None
 			self.mess_is = "Non HTTP, Protocole Inconnu"
-		return self.is_http
+		return self.http
 
 
 def analyze_trames(content):

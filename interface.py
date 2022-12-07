@@ -197,8 +197,8 @@ class Interface(Tk):
 				dest = trame.dest_ip
 				color = "darkpurple"
 				if trame.tcp :
-					color = "darkgreen"
-					if not trame.http:
+					color = "green"
+					if trame.http == False and trame.content_http == "":
 						color = "darkblue"
 						trame.mess_is = "TCP : " + str(trame.src_port) + " -> " + str(trame.dest_port) + " " + trame.flags + " Seq = " + str(trame.relative_sequence_number) + " ACK = " + str(trame.relative_ack_number)			
 			
