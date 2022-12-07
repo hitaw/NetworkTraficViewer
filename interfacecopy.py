@@ -3,7 +3,8 @@ from tkinter.filedialog import askopenfilename
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
-from analyzecopy import *
+from analyze import *
+from tkinter import simpledialog
 
 content = None
 cont = None
@@ -190,3 +191,40 @@ class Interface(Tk):
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
+
+def liste_deroulante():
+	root = Interface()
+	liste_filtres = ["adresses IP", "ports", "protocoles"]
+	res = ttk.Combobox(root, values = liste_filtres)
+	res.current(0)
+
+	res.bind("adresses IP",selection)
+	res.bind("ports",selection)
+	res.bind("protocoles",selection)
+	
+	root.mainloop()
+
+def selection(event):
+	select = res.get()
+	if select == "adresses IP":
+		ip_res = simpledialog.askstring("Adresse IP","Les messages liés à quelle adresse IP voulez-vous voir ?")
+		tri_ip(ip_res)
+	elif select == "ports":
+		port_res = simpledialog.askstring("Port","Les messages liés à quel port voulez-vous voir ?")
+		tri_ports(port_res)
+	else :
+		protocole_res = simpledialog.askstring("Protocole","Les messages liés à quel protocole voulez-vous voir ?")
+		tri_ports(port_res)
+
+
+def tri_ip(ip):
+	return
+	
+def tri_ports(port):
+	return
+def tri_protocoles(protocole):
+	return
+
+
+
+liste_deroulante()
