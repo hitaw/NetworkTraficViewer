@@ -1,5 +1,6 @@
 from tkinter import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import *
+from tkinter import simpledialog
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
@@ -7,6 +8,7 @@ from analyze import *
 from affichage import *
 
 content = None
+en_cours = None
 cont = None
 label = None
 canva = None
@@ -39,11 +41,13 @@ class Interface(Tk):
 		menu_file = Menu(menu_bar, tearoff = 0)
 		menu_file.add_command(label = "Open", command = self.open_file, accelerator = "CTRL+O")
 		menu_file.add_command(label = "Analyze", command = self.analyze_file, accelerator = "CTRL+A")
-		menu_file.add_command(label = "Save", command = self.save_file, accelerator = "CTRL+S")
+		menu_file.add_command(label = "Save as...", command = self.save_file, accelerator = "CTRL+S")
 		menu_file.add_command(label ="Close", command = self.close_file, accelerator = "CTRL+F")
 		menu_file.add_separator()
-		menu_file.add_command(label = "Help", command=self.help, accelerator = "CTRL+H")
 		menu_file.add_command(label = "Quit", command=self.quit, accelerator = "CTRL+C")
+		menu_file.add_command(label = "Help", command=self.help, accelerator = "CTRL+H")
+		menu_file.add_separator()
+		menu_file.add_command(label = "About...", command=self.about)
 		menu_bar.add_cascade(label="Menu", font = ("Arial",15), menu=menu_file)
 
 		self.bind_all("<Control-o>", lambda x: self.open_file())
@@ -52,6 +56,15 @@ class Interface(Tk):
 		self.bind_all("<Control-f>", lambda x: self.close_file())
 		self.bind_all("<Control-h>", lambda x: self.help())
 		self.bind_all("<Control-c>", lambda x: self.quit())
+
+		menu_filter = Menu(menu_bar, tearoff = 0)
+		menu_filter.add_command(label = "Adresses IP", command = self.filtre_ip)
+		menu_filter.add_command(label = "Ports", command = self.filtre_port)
+		menu_filter.add_command(label = "TCP", command = self.filtre_tcp)
+		menu_filter.add_command(label = "HTTP", command = self.filtre_http)
+		menu_filter.add_separator()
+		menu_filter.add_command(label = "Enlever les filtres", command = self.remove_filter)
+		menu_bar.add_cascade(label="Filtre", font = ("Arial",15), menu=menu_filter)
 
 		self.config(menu=menu_bar)
 
@@ -143,6 +156,7 @@ class Interface(Tk):
 	def analyze_file(self):
 		global content
 		global analyzed
+		global en_cours
 
 		if content is None:
 			messagebox.showerror("Erreur", "Aucun fichier n'a été ouvert")
@@ -153,6 +167,7 @@ class Interface(Tk):
 			return
 
 		content = analyze_trames(content)
+		en_cours = content
 		self.print_analyzed_file()
 		analyzed = True
 
@@ -168,7 +183,7 @@ class Interface(Tk):
 			mes = messagebox.showerror("Vous ne pouvez pas enregistrer un fichier qui n'est pas analysé")
 			return
 		
-		name = "screen_fireshark" + str(num) + ".pdf"
+		name = asksaveasfilename(title="Enregistrer sous", filetypes=[("pdf files", ".pdf")])
 		canva.postscript(file=name, colormode='color', width = column, height = lines*24.5, pagewidth = column, pageheight = lines*24.5)
 		messagebox.showinfo("","Bien enregistré")
 		num += 1
@@ -178,11 +193,12 @@ class Interface(Tk):
 		global canva
 		global liste_label
 		global liste_button
+		global en_cours
 		global lines
 		global column
 
-		canva.itemconfig(label, text = "")
-		trames_ethernet = tri_trames(content)
+		canva.delete("all")
+		trames_ethernet = tri_trames(en_cours)
 		last = 0
 		dico,j = recup_address(trames_ethernet)
 
@@ -194,6 +210,14 @@ class Interface(Tk):
 				source = trame.src_ip
 				dest = trame.dest_ip
 				color = "darkpurple"
+				if dico[source] > dico[dest]:
+					src = dico[source] + 30
+					dst = dico[dest] - 30
+				else:
+					src = dico[source] - 30
+					dst = dico[dest] + 30
+				canva.create_text(src, 75 + i*60, fill = "black", font = "Arial", text = str(trame.src_port))
+				canva.create_text(dst,75 + i*60, fill = "black", font = "Arial", text = str(trame.dest_port))
 				if trame.tcp :
 					color = "green"
 					if trame.http == False and trame.content_http == "":
@@ -213,5 +237,73 @@ class Interface(Tk):
 		column = 200 + last
 		self.update_scroll_region()
 
+
+	def filtre_ip(self):
+		global en_cours
+
+		ip_res = simpledialog.askstring("Adresse IP","Avec quelle addresse IP voulez-vous filtrer ? (EX : 192.168.99.200)")
+		ip_res = ip_res.replace(" ","")
+		
+		temp = []
+		for i in range(len(en_cours)):
+			if en_cours[i].src_ip == ip_res or en_cours[i].dest_ip == ip_res:
+				temp.append(en_cours[i])
+
+		if len(temp) == 0:
+			messagebox.showerror("Erreur", "L'adresse IP n'existe pas ou est mal écrite")
+			return
+
+		en_cours = temp
+		self.print_analyzed_file()
+		
+	def filtre_port(self):
+		global en_cours
+
+		port_res = simpledialog.askstring("Port","Avec quel port voulez-vous filtrer ? (EX : 80)")
+		port_res = port_res.replace(" ","")
+		port_res = int(port_res)
+		
+		temp = []
+		for i in range(len(en_cours)):
+			if en_cours[i].src_port == port_res or en_cours[i].dest_port == port_res:
+				temp.append(en_cours[i])
+
+		if len(temp) == 0:
+			messagebox.showerror("Erreur", "Le port donné n'existe pas ou est mal écrit")
+			return
+
+		en_cours = temp
+		self.print_analyzed_file()
+
+	def filtre_http(self):
+		global en_cours
+		temp=[]
+		for i in range(len(en_cours)):
+			if en_cours[i].http:
+				temp.append(en_cours[i])
+		en_cours = temp
+		self.print_analyzed_file()
+
+	def filtre_tcp(self):
+		global en_cours
+		temp = []
+		for i in range(len(en_cours)):
+			if en_cours[i].tcp:
+				temp.append(en_cours[i])
+		en_cours = temp
+		self.print_analyzed_file()
+
+	def remove_filter(self):
+		global en_cours
+		if en_cours != content:
+			en_cours = content
+			self.print_analyzed_file()
+		else:
+			messagebox.showerror("Error","Aucun filtre n'est appliqué")
+
+
 	def help(self):
-		h = messagebox.showinfo("Help", "xxx")
+		h = messagebox.showinfo("Help", "Open -> Ouvre un fichier et l'affiche\n\nAnalyze -> Analyse le fichier ouvert et affiche sa représentation \"flow_graph\"\n\nSave as... -> Sauvegarde la représentation flow_graph dans un fichier pdf\n\nClose -> Ferme le fichier\n\nQuit -> Ferme l'application\n\n\nFiltres :\n\nAdresse Ip -> Affiche les trames utilisant l'adresse ip donnée (attention au format)\nPort -> Affiche les trames utilisant le port donné\nTCP -> Affiche uniquement les trames ayant comme protocole TCP\nHTTP -> Affiche uniquement les trames ayant comme protocle HTTP")
+
+	def about(self):
+		return

@@ -1,4 +1,4 @@
-from interface import *
+from analyze import Trame
 
 def recup_address(liste_trames):
 	res = {}

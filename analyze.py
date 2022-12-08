@@ -12,10 +12,10 @@ class Trame:
 
 		self.index : int
 
-		self.ethernet : bool
-		self.ipv4 : bool
-		self.tcp : bool
-		self.http : bool
+		self.ethernet = False
+		self.ipv4 = False
+		self.tcp = False
+		self.http = False
 
 		self.non_etud = content
 
@@ -79,7 +79,6 @@ class Trame:
 
 
 	def is_ethernet(self):
-		self.ethernet = False
 		if  len(self.non_etud) < 128 or len(self.non_etud) > 3028:
 			self.mess_is = "Trame non conforme (moins de 64 octets ou plus de 1512 octets)"
 		elif int(self.non_etud[24:28],16) > 1500:
@@ -106,7 +105,6 @@ class Trame:
 		if self.type == "0800" :
 			self.ipv4 = True
 		else:
-			self.ipv4 = False
 			if self.type == "0806":
 				self.mess_is = "Trame ARP"
 			elif self.type == "86dd":
@@ -169,7 +167,6 @@ class Trame:
 		if self.protocol == "06":
 			self.tcp = True
 		else:
-			self.tcp = False
 
 			if self.protocol == "01":
 				self.mess_is = "Protocole ICMP"
@@ -236,6 +233,7 @@ class Trame:
 
 			if self.tcp_flags[1] == "0":
 				premier_sequence_number = self.sequence_number
+				premier_acknowlegment_number = 0
 				port_s = self.src_port
 				port_d = self.dest_port
 
@@ -265,7 +263,6 @@ class Trame:
 		self.non_etud = ""
 
 	def is_http(self):
-		self.http = False
 		if ("HTTP" in self.content_http) and (self.dest_port == 80 or self.src_port == 80):
 			self.http = True
 			i = 0

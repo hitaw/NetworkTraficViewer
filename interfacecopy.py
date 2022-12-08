@@ -271,26 +271,23 @@ def filtre_ip(ip):
 			res.append(content[i])
 	return res
 	
-def filtre_ports(port):
+def filtre_port(port):
 	res = []
 	for i in range(len(content)):
 		if content[i].src_port == port or content[i].dest_port == port:
 			res.append(content[i])
 	return res
 
-def filtre_protocole_http():
+def filtre_http():
 	res=[]
 	for i in range(len(content)):
 		if content[i].http:
 			res.append(content[i])
 	return res
 
-def filtre_protocole_tcp():
+def filtre_tcp():
 	res=[]
 	for i in range(len(content)):
 		if content[i].tcp:
 			res.append(content[i])
 	return res
-
-
-liste_deroulante()
