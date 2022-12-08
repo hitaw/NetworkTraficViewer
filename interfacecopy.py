@@ -255,23 +255,42 @@ def selection(event):
 	select = res.get()
 	if select == "adresses IP":
 		ip_res = simpledialog.askstring("Adresse IP","Les messages liés à quelle adresse IP voulez-vous voir ?")
-		tri_ip(ip_res)
+		print(filtre_ip(ip_res))
 	elif select == "ports":
 		port_res = simpledialog.askstring("Port","Les messages liés à quel port voulez-vous voir ?")
-		tri_ports(port_res)
+		print(filtre_ports(port_res))
 	else :
 		protocole_res = simpledialog.askstring("Protocole","Les messages liés à quel protocole voulez-vous voir ?")
-		tri_protocoles(protocole_res)
+		print(filtre_protocoles(protocole_res))
 
 
-def tri_ip(ip):
-	return
+def filtre_ip(ip):
+	res = []
+	for i in range(len(content)):
+		if content[i].src_ip == ip or content[i].dest_ip == ip:
+			res.append(content[i])
+	return res
 	
-def tri_ports(port):
-	return
-def tri_protocoles(protocole):
-	return
+def filtre_ports(port):
+	res = []
+	for i in range(len(content)):
+		if content[i].src_port == port or content[i].dest_port == port:
+			res.append(content[i])
+	return res
 
+def filtre_protocole_http():
+	res=[]
+	for i in range(len(content)):
+		if content[i].http:
+			res.append(content[i])
+	return res
+
+def filtre_protocole_tcp():
+	res=[]
+	for i in range(len(content)):
+		if content[i].tcp:
+			res.append(content[i])
+	return res
 
 
 liste_deroulante()
