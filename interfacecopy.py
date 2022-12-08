@@ -4,14 +4,16 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
 from analyze import *
-from tkinter import simpledialog
+from affichage import *
 
 content = None
 cont = None
 label = None
 canva = None
 analyzed = False
-frame = None
+lines = 0
+column = 0
+num = 1
 
 class Interface(Tk):
 
@@ -19,25 +21,18 @@ class Interface(Tk):
 		global cont
 		global canva
 		global label
-		global frame
-		global xscroll
-		global yscroll
-
 
 		Tk.__init__(self)
 
-		cont = StringVar()
 		canva = Canvas(self)
-		frame = Frame(canva, bg = "lightgrey")
-		xscroll = Scrollbar(self)
-		yscroll = Scrollbar(self)
 
 		self.create_menu_bar()
+		self.create_menu_2()
 		self.geometry("1920x1080")
-		self.title("Network traffic viewer")
+		self.title("Fireshark")
 		self.create_canva()
-		self.create_label()
-
+		logo = PhotoImage(file = "logo.png")
+		self.iconphoto(False, logo)
 
 	def create_menu_bar(self):
 		menu_bar = Menu(self)
@@ -45,6 +40,7 @@ class Interface(Tk):
 		menu_file = Menu(menu_bar, tearoff = 0)
 		menu_file.add_command(label = "Open", command = self.open_file, accelerator = "CTRL+O")
 		menu_file.add_command(label = "Analyze", command = self.analyze_file, accelerator = "CTRL+A")
+		menu_file.add_command(label = "Save", command = self.save_file, accelerator = "CTRL+S")
 		menu_file.add_command(label ="Close", command = self.close_file, accelerator = "CTRL+F")
 		menu_file.add_separator()
 		menu_file.add_command(label = "Help", command=self.help, accelerator = "CTRL+H")
@@ -53,6 +49,29 @@ class Interface(Tk):
 
 		self.bind_all("<Control-o>", lambda x: self.open_file())
 		self.bind_all("<Control-a>", lambda x: self.analyze_file())
+		self.bind_all("<Control-s>", lambda x: self.save_file())
+		self.bind_all("<Control-f>", lambda x: self.close_file())
+		self.bind_all("<Control-h>", lambda x: self.help())
+		self.bind_all("<Control-c>", lambda x: self.quit())
+
+		self.config(menu=menu_bar)
+
+	def create_menu_2(self):
+		menu_bar = Menu(self)
+
+		menu_file = Menu(menu_bar, tearoff = 0)
+		menu_file.add_command(label = "Open", command = self.open_file, accelerator = "CTRL+O")
+		menu_file.add_command(label = "Analyze", command = self.analyze_file, accelerator = "CTRL+A")
+		menu_file.add_command(label = "Save", command = self.save_file, accelerator = "CTRL+S")
+		menu_file.add_command(label ="Close", command = self.close_file, accelerator = "CTRL+F")
+		menu_file.add_separator()
+		menu_file.add_command(label = "Help", command=self.help, accelerator = "CTRL+H")
+		menu_file.add_command(label = "Quit", command=self.quit, accelerator = "CTRL+C")
+		menu_bar.add_cascade(label="Menu", font = ("Arial",15), menu=menu_file)
+
+		self.bind_all("<Control-o>", lambda x: self.open_file())
+		self.bind_all("<Control-a>", lambda x: self.analyze_file())
+		self.bind_all("<Control-s>", lambda x: self.save_file())
 		self.bind_all("<Control-f>", lambda x: self.close_file())
 		self.bind_all("<Control-h>", lambda x: self.help())
 		self.bind_all("<Control-c>", lambda x: self.quit())
@@ -62,41 +81,45 @@ class Interface(Tk):
 	def create_canva(self):
 		global label
 		global canva
-		global frame
-		global cont
-		global yscroll
-		global xscroll
 
-		canva.config(xscrollcommand = xscroll.set, yscrollcommand = yscroll.set, bg = "lightgrey")
-		xscroll.config(orient = HORIZONTAL, command = canva.xview)
-		yscroll.config(orient = VERTICAL, command = canva.yview)
+		canva = Canvas(self, width=1980, height=1080, bg='lightgrey')
+		canva.grid(row = 0, column = 0)
+		label = canva.create_text(952.5, 480, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert", anchor ="center", justify = "center")
+		
+	def create_scrollbar(self):
+		global canva
 
-		xscroll.pack(fill = X, side = BOTTOM, expand = FALSE)
-		yscroll.pack(fill = Y, side = RIGHT, expand = FALSE)
-		canva.pack(fill = BOTH, side = LEFT, expand = TRUE)
-		canva.create_window(0, 0, window = frame, anchor = NW)
+		sheight = lines * 24.5
+		swidth = column * 20
+		canva.config(scrollregion = (0,0, swidth, sheight), width = 1905, height = 960)
+		xscroll = Scrollbar(self, orient = HORIZONTAL)
+		yscroll = Scrollbar(self, orient = VERTICAL)
+		xscroll.grid(row=1, column=0, sticky=E+W)
+		yscroll.grid(row=0, column=1,  sticky=S+N)
 
-	def create_label(self):
-		global label
-		cont.set("Aucun fichier n'est ouvert")
-		label = Label(frame, textvariable = cont, font = "Arial", justify = "left", bg = "lightgrey").grid(row = 1, column = 1, pady = 10, padx = 10)
+		xscroll["command"]=canva.xview
+		yscroll["command"]=canva.yview
+		canva['xscrollcommand']=xscroll.set
+		canva['yscrollcommand']=yscroll.set
 	
 	def update_scroll_region(self):
-		global canva 
-		global frame
+		global canva
 
 		canva.update_idletasks()
-		canva.config(scrollregion = frame.bbox())
+		canva.config(scrollregion = (0, 0, column, lines*24.5), width = 1905, height = 960)
 
 	def open_file(self):
 
 		global content
 		global analyzed
+		global lines
+		global column
 
-		if content is not None and analyzed == False:
-			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert et n'est pas analysé, voulez-vous vraiment ouvrir un autre fichier ?")
+		if content is not None:
+			answer = messagebox.askyesno("Ouverture", "Un fichier a été déjà été ouvert, voulez-vous vraiment ouvrir un autre fichier ?")
 			if answer == False:
 				return
+			self.close_file()
 
 		file_name = askopenfilename(title="Choisissez le fichier à ouvrir", filetypes=[("txt files", ".txt")])
 		
@@ -109,17 +132,23 @@ class Interface(Tk):
 			mes = messagebox.showerror("Erreur", "Problème lors de l'ouverture du fichier")
 			return
 
+		lines = file.readlines()
+		lines = len(lines)
+
 		file.seek(0)
 		content = file.read()
 		file.close()
 
-		cont.set(content)
-		self.update_scroll_region()
+		canva.itemconfig(label, text = content, justify ="left")
+		canva.moveto(label, 10, 10)
+		self.create_scrollbar()
 
 	def close_file(self):
 		global content
 		global analyzed
-		global cont
+		global lines 
+		global column
+		global label
 
 		if content is not None and analyzed == False:
 			answer = messagebox.askyesno("Fermeture","Un fichier a été ouvert mais n'est pas analysé, voulez-vous vraiment fermé le fichier ?")
@@ -128,7 +157,11 @@ class Interface(Tk):
 
 		content = None
 		analyzed = False
-		cont.set("Aucun fichier n'est ouvert")
+		canva.delete("all")
+		label = canva.create_text(952.5, 480, fill = "black", font = "Arial 15", text = "Aucun fichier n'est ouvert", anchor ="center", justify = "center")
+		lines = 1
+		column = 1
+		self.update_scroll_region()
 
 	def analyze_file(self):
 		global content
@@ -146,48 +179,62 @@ class Interface(Tk):
 		self.print_analyzed_file()
 		analyzed = True
 
+	def save_file(self):
+
+		global num
+
+		if content == None:
+			mes = messagebox.showerror("Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			mes = messagebox.showerror("Vous ne pouvez pas enregistrer un fichier qui n'est pas analysé")
+			return
+		
+		name = "screen_fireshark" + str(num) + ".pdf"
+		canva.postscript(file=name, colormode='color', width = column, height = lines*24.5, pagewidth = column, pageheight = lines*24.5)
+		messagebox.showinfo("","Bien enregistré")
+		num += 1
+
 	def print_analyzed_file(self):
 		global content
 		global canva
-		global frame
+		global liste_label
+		global liste_button
+		global lines
+		global column
 
-		#cont.set(content)
-		#self.update_scroll_region()
+		canva.itemconfig(label, text = "")
+		trames_ethernet = tri_trames(content)
+		last = 0
+		dico,j = recup_address(trames_ethernet)
 
-		for i in len(content):
-			temp = content[i]
-			dico = recup_ip_address(content)
-			source = temp.src_ip
-			dest = temp.dest_ip
-			if  dico[source] < dico[dest] :
-				sens_arrow = 'last'
-			else :
-				sens_arrow = 'first'
-			ports = ""
-			if temp.tcp :
-				ports += "port source : "
-				ports += temp.src_port
-				ports += " port destination : "
-				ports += temp.dest_port
-			canva.create_line(dico[source]*20,i,dico[dest]*20,i,arrow=sens_arrow,tag=source+" "+ports+" "+dest)
-		return
+		for i in range(len(trames_ethernet)):
+			trame = trames_ethernet[i]
+			color = "darkred"
 
-	def recup_ip_address(content):
-		res = []
-		for i in len(content):
-			temp = content[i]
-			source = 0
-			dest = 0
-			if temp.ethernet and not temp.ipv4:
-				source = temp.src_mac
-				dest = temp.dest_mac
-			else :
-				source = temp.src_ip
-				dest = temp.dest_ip 
+			if trame.ipv4:
+				source = trame.src_ip
+				dest = trame.dest_ip
+				color = "darkpurple"
+				if trame.tcp :
+					color = "green"
+					if trame.http == False and trame.content_http == "":
+						color = "darkblue"
+						trame.mess_is = "TCP : " + str(trame.src_port) + " -> " + str(trame.dest_port) + " " + trame.flags + " Seq = " + str(trame.relative_sequence_number) + " ACK = " + str(trame.relative_ack_number)			
+			
+			canva.create_text(100, 75 + i*60 , fill = "black", font = "Arial", text = "Trame "+str(trame.index))
+			canva.create_text((dico[source] + dico[dest])//2, 65 + i*60 , fill = "black", font = "Arial", text = trame.mess_is)
+			canva.create_line(dico[source],75 + i*60,dico[dest],75 + i*60, fill = color, arrow="last",tag=trame.mess_is)
 
-			res.update({source:i,dest:i+1})
+		for address in dico:
+			canva.create_text(dico[address], 10, fill = "black", font = "Arial", text = address)
+			canva.create_line(dico[address],20,dico[address], 75 + len(trames_ethernet)*60, fill = "grey", dash = (5,1))
+			last = dico[address]
 
-		return res
+		lines = (len(trames_ethernet)*2.5)//1
+		column = 200 + last
+		self.update_scroll_region()
 
 	def help(self):
 		h = messagebox.showinfo("Help", "xxx")
@@ -214,7 +261,7 @@ def selection(event):
 		tri_ports(port_res)
 	else :
 		protocole_res = simpledialog.askstring("Protocole","Les messages liés à quel protocole voulez-vous voir ?")
-		tri_ports(port_res)
+		tri_protocoles(protocole_res)
 
 
 def tri_ip(ip):
