@@ -73,7 +73,7 @@ class Trame:
 				if self.ipv4:
 					if self.is_tcp():
 						self.analyze_tcp()
-						self.analyze_flags_tcp(self.tcp_flags)			
+						self.analyze_flags_tcp()			
 						self.conversion_ascii()
 						self.is_http()
 
@@ -212,26 +212,26 @@ class Trame:
 
 		self.non_etud = self.non_etud[i:]
 
-	def analyze_flags_tcp(self,liste_flags): 
+	def analyze_flags_tcp(self): 
 		global premier_sequence_number
 		global premier_acknowlegment_number
 		global port_s
 		global port_d
 
 		self.flags = "["
-		if liste_flags[0] == "1":
+		if self.tcp_flags[0] == "1":
 			self.flags+="URG,"
 
-		if liste_flags[1] == "1":
+		if self.tcp_flags[1] == "1":
 			self.flags+="ACK,"			
 
-		if liste_flags[2] == "1":
+		if self.tcp_flags[2] == "1":
 			self.flags+="PSH,"
 
-		if liste_flags[3] == "1":
+		if self.tcp_flags[3] == "1":
 			self.flags+="RST,"
 
-		if liste_flags[4] == "1":
+		if self.tcp_flags[4] == "1":
 			self.flags+="SYN,"
 
 			if self.tcp_flags[1] == "0":
