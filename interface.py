@@ -5,7 +5,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import StringVar
 from analyze import *
-from affichage import *
+from tri import *
 
 content = None
 en_cours = None
@@ -176,11 +176,11 @@ class Interface(Tk):
 		global num
 
 		if content == None:
-			mes = messagebox.showerror("Aucun fichier n'est ouvert")
+			mes = messagebox.showerror("Erreur", "Aucun fichier n'est ouvert")
 			return
 
 		if analyzed == False:
-			mes = messagebox.showerror("Vous ne pouvez pas enregistrer un fichier qui n'est pas analysé")
+			mes = messagebox.showerror("Erreur", "Vous ne pouvez pas enregistrer un fichier qui n'est pas analysé")
 			return
 		
 		name = asksaveasfilename(title="Enregistrer sous", filetypes=[("pdf files", ".pdf")])
@@ -241,6 +241,14 @@ class Interface(Tk):
 	def filtre_ip(self):
 		global en_cours
 
+		if content == None:
+			mes = messagebox.showerror("Erreur","Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			mes = messagebox.showerror("Erreur", "Vous ne pouvez pas filtrer un fichier qui n'est pas analysé")
+			return
+
 		ip_res = simpledialog.askstring("Adresse IP","Avec quelle addresse IP voulez-vous filtrer ? (EX : 192.168.99.200)")
 		ip_res = ip_res.replace(" ","")
 		
@@ -258,6 +266,14 @@ class Interface(Tk):
 		
 	def filtre_port(self):
 		global en_cours
+
+		if content == None:
+			mes = messagebox.showerror("Erreur", "Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			mes = messagebox.showerror("Erreur", "Vous ne pouvez pas filtrer un fichier qui n'est pas analysé")
+			return
 
 		port_res = simpledialog.askstring("Port","Avec quel port voulez-vous filtrer ? (EX : 80)")
 		port_res = port_res.replace(" ","")
@@ -277,6 +293,15 @@ class Interface(Tk):
 
 	def filtre_http(self):
 		global en_cours
+
+		if content == None:
+			mes = messagebox.showerror("Erreur", "Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			mes = messagebox.showerror("Erreur","Vous ne pouvez pas filtrer un fichier qui n'est pas analysé")
+			return
+
 		temp=[]
 		for i in range(len(en_cours)):
 			if en_cours[i].http:
@@ -286,6 +311,15 @@ class Interface(Tk):
 
 	def filtre_tcp(self):
 		global en_cours
+
+		if content == None:
+			mes = messagebox.showerror("Erreur","Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			mes = messagebox.showerror("Erreur","Vous ne pouvez pas filtrer un fichier qui n'est pas analysé")
+			return
+
 		temp = []
 		for i in range(len(en_cours)):
 			if en_cours[i].tcp:
@@ -295,15 +329,24 @@ class Interface(Tk):
 
 	def remove_filter(self):
 		global en_cours
+
+		if content == None:
+			messagebox.showerror("Erreur", "Aucun fichier n'est ouvert")
+			return
+
+		if analyzed == False:
+			messagebox.showerror("Erreur", "Le fichier n'est pas analysé")
+			return
+
 		if en_cours != content:
 			en_cours = content
 			self.print_analyzed_file()
 		else:
-			messagebox.showerror("Error","Aucun filtre n'est appliqué")
+			messagebox.showerror("Erreur","Aucun filtre n'est appliqué")
 
 
 	def help(self):
-		h = messagebox.showinfo("Help", "Open -> Ouvre un fichier et l'affiche\n\nAnalyze -> Analyse le fichier ouvert et affiche sa représentation \"flow_graph\"\n\nSave as... -> Sauvegarde la représentation flow_graph dans un fichier pdf\n\nClose -> Ferme le fichier\n\nQuit -> Ferme l'application\n\n\nFiltres :\n\nAdresse Ip -> Affiche les trames utilisant l'adresse ip donnée (attention au format)\nPort -> Affiche les trames utilisant le port donné\nTCP -> Affiche uniquement les trames ayant comme protocole TCP\nHTTP -> Affiche uniquement les trames ayant comme protocle HTTP")
+		messagebox.showinfo("Help", "Open -> Ouvre un fichier et l'affiche\n\nAnalyze -> Analyse le fichier ouvert et affiche sa représentation \"flow_graph\"\n\nSave as... -> Sauvegarde la représentation flow_graph dans un fichier pdf\n\nClose -> Ferme le fichier\n\nQuit -> Ferme l'application\n\n\nFiltres :\n\nAdresse Ip -> Affiche les trames utilisant l'adresse ip donnée (attention au format)\nPort -> Affiche les trames utilisant le port donné\nTCP -> Affiche uniquement les trames ayant comme protocole TCP\nHTTP -> Affiche uniquement les trames ayant comme protocle HTTP")
 
 	def about(self):
-		return
+		messagebox.showinfo("About", "LU3IN033 - Projet de Réseaux\n\nPar Léa Movsessian et Maïna Laurent\n\nLe logo a été fait par l'AI DALL-E\nLe nom Fireshark est inspiré de Wireshark et est une référence au mythe de Prométhée\n\nTkinter nous a donné du fil à retordre, j'espère qu'il marchera correctement sur mac... Sinon je vous offre un tacos contre quelques points ?")
