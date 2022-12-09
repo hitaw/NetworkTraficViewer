@@ -277,8 +277,9 @@ class Interface(Tk):
 		
 		temp = []
 		for i in range(len(en_cours)):
-			if en_cours[i].src_ip == ip_res or en_cours[i].dest_ip == ip_res:
-				temp.append(en_cours[i])
+			if en_cours[i].ipv4:
+				if en_cours[i].src_ip == ip_res or en_cours[i].dest_ip == ip_res:
+					temp.append(en_cours[i])
 
 		if len(temp) == 0:
 			messagebox.showerror("Erreur", "L'adresse IP n'existe pas ou est mal écrite")
@@ -304,8 +305,9 @@ class Interface(Tk):
 		
 		temp = []
 		for i in range(len(en_cours)):
-			if en_cours[i].src_port == port_res or en_cours[i].dest_port == port_res:
-				temp.append(en_cours[i])
+			if en_cours[i].tcp:
+				if en_cours[i].src_port == port_res or en_cours[i].dest_port == port_res:
+					temp.append(en_cours[i])
 
 		if len(temp) == 0:
 			messagebox.showerror("Erreur", "Le port donné n'existe pas ou est mal écrit")
