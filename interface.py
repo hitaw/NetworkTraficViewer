@@ -131,6 +131,10 @@ class Interface(Tk):
 		content = file.read()
 		file.close()
 
+		if len(content) == 0:
+			content = None
+			messagebox.showerror("Erreur","Le fichier est vide")
+			return
 		canva.itemconfig(label, text = content, justify ="left")
 		canva.moveto(label, 10, 10)
 		self.create_scrollbar()
