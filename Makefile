@@ -1,8 +1,7 @@
-
 all: setup run
 
 setup:
-	python -m ensurepip --upgrade | python -m pip install tk
+	brew install python3 | brew postinstall python3 | pip3 install tk
 
 run:
 	python fireshark.py
