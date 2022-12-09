@@ -1,3 +1,4 @@
+#coding=utf-8
 from analyze import Trame
 
 def recup_address(liste_trames):

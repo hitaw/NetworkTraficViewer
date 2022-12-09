@@ -1,3 +1,4 @@
+#coding=utf-8
 trames = None
 premier_sequence_number = 0
 premier_acknowlegment_number = 0
