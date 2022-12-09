@@ -2,7 +2,8 @@
 
 1. Linux
 
-Lancer la commande `make run` ou directement `python fireshark.py` dans le terminal de commande, après vous être placé dans le dossier Fireshark avec la commande `cd`
+Si tkinter est déjà installé sur votre ordinateur, lancer la commande `make run` ou directement `python fireshark.py` dans le terminal de commande, après vous être placé dans le dossier Fireshark avec la commande `cd`
+Dans le cas contraire, il faut installer tkinter manuellement. Comme les commandes changent en fonction des distibutions, il est compliqué de faire un makefile complet (par exemple la commande pour manjaro sera `sudo pacman -S tk`)
 
 2. Mac
 
