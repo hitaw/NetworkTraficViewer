@@ -204,21 +204,21 @@ class Interface(Tk):
 
 		for i in range(len(trames_ethernet)):
 			trame = trames_ethernet[i]
-			color = "darkred"
+			color = "red"
 
 			if trame.ipv4:
 				source = trame.src_ip
 				dest = trame.dest_ip
-				color = "darkpurple"
-				if dico[source] > dico[dest]:
-					src = dico[source] + 30
-					dst = dico[dest] - 30
-				else:
-					src = dico[source] - 30
-					dst = dico[dest] + 30
-				canva.create_text(src, 75 + i*60, fill = "black", font = "Arial", text = str(trame.src_port))
-				canva.create_text(dst,75 + i*60, fill = "black", font = "Arial", text = str(trame.dest_port))
+				color = "purple"
 				if trame.tcp :
+					if dico[source] > dico[dest]:
+						src = dico[source] + 30
+						dst = dico[dest] - 30
+					else:
+						src = dico[source] - 30
+						dst = dico[dest] + 30
+					canva.create_text(src, 75 + i*60, fill = "black", font = "Arial", text = str(trame.src_port))
+					canva.create_text(dst,75 + i*60, fill = "black", font = "Arial", text = str(trame.dest_port))
 					color = "green"
 					if trame.http == False and trame.content_http == "":
 						color = "darkblue"

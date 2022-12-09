@@ -278,12 +278,24 @@ class Trame:
 def analyze_trames(content):
 	global trames
 	result = ""
-	trames = content.replace(" ","") #on retire les espaces
-	trames = trames.splitlines() #on sépare les lignes
-	t = trames
+
+	trames = content.splitlines()
+	for j in range(len(trames)):
+		if len(trames[j]) >= 9:
+			if "   " in trames[j][9:]:
+				i = 9
+				while i+3 < len(trames[j]) and trames[j][i:i+3] != "   ":
+					i+=1
+				trames[j] = trames[j][:i]
+		trames[j]=trames[j].replace(" ","")
+
+	t = []
+	for line in trames:
+		if len(line)>=5:
+			t.append(line)
 	new = []
 	while t != []:
-		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité
+		(res, t) = new_trame(t) #on crée toutes les trames, on vérifie leur validité:
 		new.append(res)
 	for i in range(len(new)):
 		new[i].analyze_trame()
@@ -297,12 +309,21 @@ def new_trame(t):
 		res.append(t[0].lower()) #si oui, on ajoute la ligne à la nouvelle trame
 		t = t[1:] #on retire la première ligne pour gérer les autres
 	else:
-		return None
+		i = 0
+		while t[i][:4] != "0000":
+			i += 1
+		return (Trame(""), t[i:])
 	suiv = True
 	while suiv and t != []:
 		if int(t[0][:4],16) == int(res[len(res)-1][:4],16)+16: #on ajoute les autres lignes SSI les offset se suivent
 			res.append(t[0].lower()) 
 			t = t[1:] #on retire la première ligne pour gérer les autres
+		elif t[0][:4] != "0000":
+			suiv = False
+			i = 0
+			while t[i][:4] != "0000":
+				i += 1
+			return (Trame(""), t[i:])
 		else:
 			suiv = False
 
@@ -317,11 +338,11 @@ def verify_trame(trame):
 	for i in range(0,len(trame)):
 		if i != len(trame)-1: #si ce n'est pas la dernière ligne de la trame, on vérifie que sa longueur est égale à 32
 			if len(trame[i]) != 32:
-				return None
+				return []
 		else:
 			if len(trame[i]) > 32: #si c'est la dernière ligne, on vérifie qu'elle est plus petite que 32
-				return None
+				return []
 		for j in trame[i]:
 			if (j < "0" or j > "9") and (j < "a" or j > "z"): #on vérifie que tous les caractères de la ligne soient des caractères hexadécimaux
-				return None
+				return []
 	return trame
