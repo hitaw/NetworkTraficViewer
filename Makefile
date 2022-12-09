@@ -1,8 +1,7 @@
-
 all: setup run
 
 setup:
-	pip3 install tk
+	python3 get-pip.py | pip3 install tk
 
 run:
 	python fireshark.py
