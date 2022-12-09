@@ -29,9 +29,12 @@ def recup_address(liste_trames):
 def tri_trames(liste_trames):
 
 	trames_ethernet = []
+	trames_non_ethernet = []
 
 	for trame in liste_trames:
 		if trame.ethernet:
 			trames_ethernet.append(trame)
+		else:
+			trames_non_ethernet.append(trame)
 
-	return (trames_ethernet)
+	return (trames_ethernet, trames_non_ethernet)

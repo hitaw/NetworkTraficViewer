@@ -58,6 +58,8 @@ class Interface(Tk):
 		self.bind_all("<Control-c>", lambda x: self.quit())
 
 		menu_filter = Menu(menu_bar, tearoff = 0)
+		menu_filter.add_command(label = "Info Trame", command = self.info_trame)
+		menu_filter.add_separator()
 		menu_filter.add_command(label = "Adresses IP", command = self.filtre_ip)
 		menu_filter.add_command(label = "Ports", command = self.filtre_port)
 		menu_filter.add_command(label = "TCP", command = self.filtre_tcp)
@@ -191,14 +193,17 @@ class Interface(Tk):
 	def print_analyzed_file(self):
 		global content
 		global canva
-		global liste_label
-		global liste_button
 		global en_cours
 		global lines
 		global column
 
 		canva.delete("all")
-		trames_ethernet = tri_trames(en_cours)
+
+		if len(en_cours) == 0:
+				canva.create_text(952.5, 480, fill = "black", font = "Arial 15", text = "Aucune trame ne correspond aux critères et/ou n'est exploitable", anchor ="center", justify = "center")
+				return
+
+		trames_ethernet, trames_non_ethernet = tri_trames(en_cours)		
 		last = 0
 		dico,j = recup_address(trames_ethernet)
 
@@ -223,7 +228,9 @@ class Interface(Tk):
 					if trame.http == False and trame.content_http == "":
 						color = "darkblue"
 						trame.mess_is = "TCP : " + str(trame.src_port) + " -> " + str(trame.dest_port) + " " + trame.flags + " Seq = " + str(trame.relative_sequence_number) + " ACK = " + str(trame.relative_ack_number)			
-			
+			else:
+				source = trame.src_mac
+				dest = trame.dest_mac
 			canva.create_text(100, 75 + i*60 , fill = "black", font = "Arial", text = "Trame "+str(trame.index))
 			canva.create_text((dico[source] + dico[dest])//2, 65 + i*60 , fill = "black", font = "Arial", text = trame.mess_is)
 			canva.create_line(dico[source],75 + i*60,dico[dest],75 + i*60, fill = color, arrow="last",tag=trame.mess_is)
@@ -233,7 +240,19 @@ class Interface(Tk):
 			canva.create_line(dico[address],20,dico[address], 75 + len(trames_ethernet)*60, fill = "grey", dash = (5,1))
 			last = dico[address]
 
-		lines = (len(trames_ethernet)*2.5)//1
+		if len(trames_non_ethernet) != 0:
+			if len(trames_non_ethernet) == 1:
+				non_ethernet = "La trame "
+				fin = " n'est pas une trame Ethernet II"
+			else:
+				non_ethernet = "Les trames "
+				fin = " ne sont pas des trames Ethernet II"
+			for trame in trames_non_ethernet:
+				non_ethernet += str(trame.index) + ", "
+			non_ethernet = non_ethernet[:-2] + fin
+			canva.create_text(250, 100 + len(trames_ethernet)*60, text = non_ethernet, fill = "black", font = "Arial")
+
+		lines = (len(trames_ethernet)*2.75)//1
 		column = 200 + last
 		self.update_scroll_region()
 
@@ -344,9 +363,95 @@ class Interface(Tk):
 		else:
 			messagebox.showerror("Erreur","Aucun filtre n'est appliqué")
 
+	def info_trame(self):
+
+		if len(en_cours) == 0:
+			messagebox.showerror("Erreur", "Aucune trame à afficher")
+			return
+
+		num = simpledialog.askstring("Trame", "Numero de la trame dont vous voulez les informations\n(Attention : la trame doit apparaître dans l'interface actuelle)")
+		num = num.replace(" ","")
+		num = int(num)
+
+		trame = None
+		for t in en_cours:
+			if t.index == num:
+				trame = t
+
+		if trame == None:
+			messagebox.showerror("Erreur", "La trame demandée n'existe pas. Si vous pensez qu'elle existe, enlever les filtres.")
+			return
+
+		win = Toplevel(self)
+		win.geometry("960x540")
+		win.resizable(width=False, height=False)
+		c = Canvas(win, height = 540, width = 960, bg='lightgrey')
+		c.grid(row = 0, column = 0)
+
+		if not trame.ethernet:
+			c.create_text(5, 5, fill = "black", font = "Arial", text = "La trame n'est pas ethernet. Aucune donnée à afficher", justify = "center", anchor= N+W)
+			return
+				
+		s = "Trame "+ str(num) +"\n\n"
+
+		s += "Ethernet :\n\n"
+
+		s += "Adresse Mac Source : " + trame.src_mac
+		s += "\nAdresse Mac Destination : "+ trame.dest_mac
+		s += "\nType : " + str(trame.type)
+
+		if not trame.ipv4:
+			s += " (" + trame.mess_is +")"
+			c.create_text(5, 5, fill = "black", font = "Arial", text = s, justify = "left", anchor= N+W)
+			return
+
+		s += "\n\nIPv4 : \n\n"
+		s += "Adresse IP Source : " + trame.src_ip
+		s += "\nAdresse IP Destination : " + trame.dest_ip
+		s += "\nHeader length : " + str(trame.header_length*4)
+		s += "\nTotal length : " + str(trame.total_length)
+		s += "\nProtocole : " + trame.protocol
+		
+		if not trame.tcp:
+			s += " (" + trame.mess_is +")"
+			c.create_text(5, 5, fill = "black", font = "Arial", text = s, justify = "left", anchor= N+W)
+			return
+
+		s += "\n\nTCP : \n\n"
+		s += "Port Source : " + str(trame.src_port)
+		s += "\nPort Destination : " + str(trame.dest_port)
+		s += "\nSequence Number : " + str(trame.sequence_number)
+		s += "\nAcknowledgment Number : " + str(trame.ack)
+		s += "\nWindow : " + str(trame.window)
+		s += "\nTCP Flags : " + trame.flags
+
+		if  trame.http:
+			s += "\n\nHTTP :\n\n" + trame.content_http
+			taille = trame.content_http.splitlines()
+			sheight = (27 + len(trame.content_http.splitlines())) * 24.5
+			swidth = 1
+			for t in taille:
+				if len(t) * 10 > swidth:
+					swidth = len(t) * 10
+			c.config(scrollregion = (0,0, swidth, sheight), width = 945, height = 525)
+			xscroll = Scrollbar(win, orient = HORIZONTAL)
+			yscroll = Scrollbar(win, orient = VERTICAL)
+			xscroll.grid(row=1, column=0, sticky=E+W)
+			yscroll.grid(row=0, column=1,  sticky=S+N)
+
+			xscroll["command"]=c.xview
+			yscroll["command"]=c.yview
+			c['xscrollcommand']=xscroll.set
+			c['yscrollcommand']=yscroll.set
+
+		c.create_text(5, 5, fill = "black", font = "Arial", text = s, justify = "left", anchor= N+W)
+
+		logo = PhotoImage(file = "logo.png")
+		win.iconphoto(False, logo)
+
 
 	def help(self):
-		messagebox.showinfo("Help", "Open -> Ouvre un fichier et l'affiche\n\nAnalyze -> Analyse le fichier ouvert et affiche sa représentation \"flow_graph\"\n\nSave as... -> Sauvegarde la représentation flow_graph dans un fichier pdf\n\nClose -> Ferme le fichier\n\nQuit -> Ferme l'application\n\n\nFiltres :\n\nAdresse Ip -> Affiche les trames utilisant l'adresse ip donnée (attention au format)\nPort -> Affiche les trames utilisant le port donné\nTCP -> Affiche uniquement les trames ayant comme protocole TCP\nHTTP -> Affiche uniquement les trames ayant comme protocle HTTP")
+		messagebox.showinfo("Help", "Menu :\n\nOpen -> Ouvre un fichier et l'affiche\nAnalyze -> Analyse le fichier ouvert et affiche sa représentation \"flow_graph\"\nSave as... -> Sauvegarde la représentation flow_graph dans un fichier pdf\nClose -> Ferme le fichier\nQuit -> Ferme l'application\n\nFiltres :\n\nAdresse Ip -> Affiche les trames utilisant l'adresse ip donnée (attention au format)\nPort -> Affiche les trames utilisant le port donné\nTCP -> Affiche uniquement les trames ayant comme protocole TCP\nHTTP -> Affiche uniquement les trames ayant comme protocle HTTP\n\nCouleurs :\n\nRouge -> Ethernet\nViolet -> IPv4\nBleu -> TCP\nVert -> HTTP")
 
 	def about(self):
 		messagebox.showinfo("About", "LU3IN033 - Projet de Réseaux\n\nPar Léa Movsessian et Maïna Laurent\n\nLe logo a été fait par l'AI DALL-E\nLe nom Fireshark est inspiré de Wireshark et est une référence au mythe de Prométhée\n\nTkinter nous a donné du fil à retordre, j'espère qu'il marchera correctement sur mac... Sinon je vous offre un tacos contre quelques points ?")
